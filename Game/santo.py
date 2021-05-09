@@ -40,6 +40,8 @@ class Santorini():
 
     def makeRandomMove(self):
         options = self.getAllCurrentAvailableMoves()
+        if not options:
+            return False
         move = random.choice(options)
         self.move(move[0], move[1])
         return move
@@ -69,8 +71,13 @@ class Santorini():
 
         while(1):
             self.setPlayer()
+            print(f"{self.player}'s turn!")
             if players[self.player[0]]=='AI':
                 move = self.makeRandomMove()
+                if not move:
+                    print(f'No move available for {self.player}')
+                    print(f'{self.player} loses!')
+                    break
                 print(f'AI makes move {move[0]} -> {move[1]}')
                 self.drawBoard()
                 if self.isDone():
@@ -80,10 +87,14 @@ class Santorini():
                 print(f'AI builds on {build}')
                 self.drawBoard()
             else:
-                print(f"{self.player}'s turn!")
+
                 self.drawBoard()
                 print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
-                self.getAllCurrentAvailableMoves()
+                moves = self.getAllCurrentAvailableMoves()
+                if not moves:
+                    print(f'No move available for {self.player}')
+                    print(f'{self.player} loses!')
+                    break
                 tup = input().split(',')
                 while len(tup) != 2:
                     print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
