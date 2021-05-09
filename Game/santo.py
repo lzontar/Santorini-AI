@@ -190,8 +190,8 @@ class Santorini():
     ### Check if any player has achieved victory.
     def isDone(self):
         for row in self.board:
-            for space in row:
-                if space[0] == 3 and space[1]:
+            for col in self.board[row]:
+                if self.board[row][col][0] == 3 and self.board[row][col][1]:
                     return True
         return False
 
