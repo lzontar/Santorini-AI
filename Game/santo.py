@@ -49,6 +49,7 @@ class Santorini():
             print(f"{self.player}'s turn!")
             self.drawBoard()
             print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
+            self.getAllCurrentAvailableMoves()
             tup = input().split(',')
             while len(tup) != 2:
                 print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
@@ -67,9 +68,10 @@ class Santorini():
                 break
             self.drawBoard()
             print(f'Please select a space adjecent to {_to} to build on!')
+            print(f'Available build destinations: {self.getAvailableBuilds(_to)}')
             tup = input()
             b = (tup[0].upper(), int(tup[1]))
-            while not self.canBuild(_to, b):
+            while not self.canBuild(b, _to):
                 print('Can\'t build on desired space!')
                 print(f'Please select a space adjecent to {_to} to build on!')
                 tup = input()
@@ -79,7 +81,17 @@ class Santorini():
 
 
 
-
+    def getAllCurrentAvailableMoves(self):
+        pawn = self.player[0]
+        moves = []
+        for row in self.board:
+            for col in self.board[row]:
+                if self.board[row][col][1] == pawn:
+                    print(f'Pawn on {(row, col)} can move to:')
+                    dests = self.getAvailableMoves((row, col))
+                    print(dests)
+                    moves += [((row, col), dest) for dest in dests]
+        return moves
 
     def getAvailableMoves(self, _from):
         if not self.board[_from[0]][_from[1]][1]:
@@ -87,10 +99,19 @@ class Santorini():
             return False
         dests = []
         for row in self.board:
-            for _to in row:
-                if self.canMove(_from, _to, "ignore"):
-                    dests.append(_to)
+            for col in self.board[row]:
+                if self.canMove(_from, (row,col), "ignore"):
+                    dests.append((row, col))
         return dests
+
+    def getAvailableBuilds(self, _to):
+        dests = []
+        for row in self.board:
+            for col in self.board[row]:
+                if self.canBuild((row, col), _to, filter="ignore"):
+                    dests.append((row, col))
+        return dests
+
 
     ### Wipes board and sets pieces in default starting positions. Note that
     ### Different starting positions can be achieved by replacing the indices in wipe().
@@ -205,15 +226,15 @@ class Santorini():
         if not self.spaceTaken(space) and not self.hasRoof(space):
             self.board[space[0]][space[1]] = (self.board[space[0]][space[1]][0]+1, None)
 
-    def canBuild(self, _to, space):
+    def canBuild(self, space, _to, filter='always'):
+        warnings.simplefilter(filter)
 
         if not self.check_lets(space[0]) or not self.check_lets(_to[0]):
             warnings.warn('Valid column indices are A-E.')
             return False
-        if not self.check_nums(space[1]) or not self.check_nums(_to[1]):
+        if not self.check_nums(int(space[1])) or not self.check_nums(int(_to[1])):
             warnings.warn('Valid row indices are 1-5.')
             return False
-
         if not self.areAdjacent(_to, space):
             warnings.warn('Can only build on a space, adjecent to the one just moved to.')
             return False
