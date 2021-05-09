@@ -1,4 +1,5 @@
 import warnings
+import random
 warnings.simplefilter("always")
 
 
@@ -36,6 +37,18 @@ class Santorini():
         self.turn += 1
 
 
+
+    def makeRandomMove(self):
+        options = self.getAllCurrentAvailableMoves()
+        move = random.choice(options)
+        self.move(move[0], move[1])
+        return move
+
+    def makeRandomBuild(self, _to):
+        options = self.getAvailableBuilds(_to)
+        b = random.choice(options)
+        self.build(b)
+        return b
     ### Main game logic.
     ### Clears board, prompts first player to move.
     ### Checks if player is winning, if not, prompts player to build,
@@ -43,53 +56,74 @@ class Santorini():
     def play(self):
         self.wipe()
         self.turn = 0
+        print('WELCOME TO SANTORINI AI!')
+        self.drawBoard()
+        players = {}
+        mode = input('Please enter \'B\' to play as blue, \'W\' to play as white, \'AI\' to watch AI play and \'WB\' to control both players! ')
+
+        for i in mode:
+            players.update({i.upper():'Human'})
+        for i in ['W', 'B']:
+            if i not in players:
+                players.update({i : 'AI'})
 
         while(1):
             self.setPlayer()
-            print(f"{self.player}'s turn!")
-            self.drawBoard()
-            print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
-            self.getAllCurrentAvailableMoves()
-            tup = input().split(',')
-            while len(tup) != 2:
-                print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
-                tup = input().split(',')
-            _from = (tup[0][0].upper(), int(tup[0][1]))
-            _to = (tup[1][-2].upper(), int(tup[1][-1]))
-            while not self.canMove(_from, _to):
-                print('Invalid move!')
+            if players[self.player[0]]=='AI':
+                move = self.makeRandomMove()
+                print(f'AI makes move {move[0]} -> {move[1]}')
+                self.drawBoard()
+                if self.isDone():
+                    print(f'{self.player} wins!')
+                    break
+                build = self.makeRandomBuild(move[1])
+                print(f'AI builds on {build}')
+                self.drawBoard()
+            else:
+                print(f"{self.player}'s turn!")
+                self.drawBoard()
                 print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
+                self.getAllCurrentAvailableMoves()
                 tup = input().split(',')
+                while len(tup) != 2:
+                    print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
+                    tup = input().split(',')
                 _from = (tup[0][0].upper(), int(tup[0][1]))
                 _to = (tup[1][-2].upper(), int(tup[1][-1]))
-            self.move(_from, _to)
-            if self.isDone():
-                print(f'{self.player} wins!')
-                break
-            self.drawBoard()
-            print(f'Please select a space adjecent to {_to} to build on!')
-            print(f'Available build destinations: {self.getAvailableBuilds(_to)}')
-            tup = input()
-            b = (tup[0].upper(), int(tup[1]))
-            while not self.canBuild(b, _to):
-                print('Can\'t build on desired space!')
+                while not self.canMove(_from, _to):
+                    print('Invalid move!')
+                    print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
+                    tup = input().split(',')
+                    _from = (tup[0][0].upper(), int(tup[0][1]))
+                    _to = (tup[1][-2].upper(), int(tup[1][-1]))
+                self.move(_from, _to)
+                if self.isDone():
+                    print(f'{self.player} wins!')
+                    break
+                self.drawBoard()
                 print(f'Please select a space adjecent to {_to} to build on!')
+                print(f'Available build destinations: {self.getAvailableBuilds(_to)}')
                 tup = input()
                 b = (tup[0].upper(), int(tup[1]))
-            self.build(b)
+                while not self.canBuild(b, _to):
+                    print('Can\'t build on desired space!')
+                    print(f'Please select a space adjecent to {_to} to build on!')
+                    tup = input()
+                    b = (tup[0].upper(), int(tup[1]))
+                self.build(b)
             self.nextTurn()
 
 
 
-    def getAllCurrentAvailableMoves(self):
+    def getAllCurrentAvailableMoves(self, verbose=False):
         pawn = self.player[0]
         moves = []
         for row in self.board:
             for col in self.board[row]:
                 if self.board[row][col][1] == pawn:
-                    print(f'Pawn on {(row, col)} can move to:')
+                    if verbose: print(f'Pawn on {(row, col)} can move to:')
                     dests = self.getAvailableMoves((row, col))
-                    print(dests)
+                    if verbose:print(dests)
                     moves += [((row, col), dest) for dest in dests]
         return moves
 
