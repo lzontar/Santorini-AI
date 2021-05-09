@@ -42,6 +42,13 @@ function drawCanvas() {
 
             rect.addEventListener('click',
                 function() {
+
+
+                    var xmlHttp = new XMLHttpRequest();
+                    xmlHttp.open( "GET", 'http://127.0.0.1:8000/api/', false ); // false for synchronous request
+                    xmlHttp.send( null );
+                    xmlHttp.responseText;
+                    console.log(xmlHttp)
                     console.log(this.getAttribute('ixX'), this.getAttribute('ixY'))
                 }, false);
 
