@@ -21,14 +21,23 @@
         <ul class="navbar-nav mr-auto">
         </ul>
         <ul class="navbar-nav  my-2 my-lg-0">
-            <i class="fa fa-refresh fa-2x" style="color: #0e6da4; cursor: pointer" onclick="refreshGame()"></i>
+            <i class="fa fa-refresh fa-2x" style="color: #0e6da4; cursor: pointer" onclick="init()"></i>
         </ul>
     </div>
 </nav>
 
 <div class="main col-md-7 col-xs-7">
     <div class="s-container">
-        <svg id="canvas" xmlns="http://www.w3.org/2000/svg" version="1.1" onload="drawCanvas()">
+        <div id="results">
+            <div style="font-size: 24px;">Application log</div>
+            <div id="noCheckTrue">AI moves and final results will be visible here.</div>
+            <div id="move"></div>
+            <div id="build"></div>
+            <div id="reason"></div>
+            <div id="result"></div>
+        </div>
+        <div></div>
+        <svg id="canvas" xmlns="http://www.w3.org/2000/svg" version="1.1" onload="init()">
         </svg>
     </div>
 </div>
