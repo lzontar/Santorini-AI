@@ -16,6 +16,12 @@ def move(request):
     gameDict = game.__dict__.copy()
     gameDict['availableConstructions'] = game.getAvailableBuilds(_to)
 
+    if game.isDone():
+        gameDict = game.__dict__.copy()
+        gameDict['result'] = f'{game.player} wins!'
+        gameDict['reason'] = f'{game.player} reached the top floor!'
+        gameDict['winner'] = game.player.lower()
+
     return HttpResponse(json.dumps(gameDict))
 
 
@@ -38,6 +44,7 @@ def build(request):
         gameDict = game.__dict__.copy()
         gameDict['result'] = f'{game.player} loses!'
         gameDict['reason'] = f'{game.player} cannot move!'
+        gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
 
         return HttpResponse(json.dumps(gameDict))
 
@@ -48,6 +55,7 @@ def build(request):
 
         gameDict['result'] = f'{game.player} wins!'
         gameDict['reason'] = f'{game.player} reached the top floor!'
+        gameDict['winner'] = game.player.lower()
 
         return HttpResponse(json.dumps(gameDict))
 
@@ -60,10 +68,12 @@ def build(request):
     if game.isDone():
         gameDict['result'] = f'{game.player} wins!'
         gameDict['reason'] = f'{game.player} reached the top floor!'
+        gameDict['winner'] = game.player.lower()
 
     if not game.canRedMove():
         gameDict['result'] = f'{game.player} loses!'
         gameDict['reason'] = f'{game.player} cannot move!'
+        gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
 
         return HttpResponse(json.dumps(gameDict))
 

@@ -12,8 +12,9 @@ const viewBox = xStart + " " + yStart + " " + width + " " + height;
 
 const svgns = "http://www.w3.org/2000/svg";
 
-boardState = null;
 alphaArray = ['A', 'B', 'C', 'D', 'E'];
+
+boardState = null;
 
 playerPos = {
     'R1': null,
@@ -98,7 +99,7 @@ function shadePossibleMoves(canvas, positions) {
                         
                         const response = JSON.parse(xmlHttp.responseText)
                         drawCanvas(response);
-                        checkIfFinished(response);
+                        checkIfFinished(canvas, response);
 
                     }, false);
             canvas.appendChild(rect);
@@ -106,35 +107,35 @@ function shadePossibleMoves(canvas, positions) {
     }
 }
 
-function checkIfFinished(response) {
-    var noCheckTrue = true;
+function checkIfFinished(canvas, response) {
     if (response.hasOwnProperty("move")) {
         document.getElementById("move").innerHTML = response['move']
-        noCheckTrue = false;
     }
 
     if (response.hasOwnProperty("build")) {
         document.getElementById("build").innerHTML = response['build']
-        noCheckTrue = false;
     }
 
     if (response.hasOwnProperty("result")) {
         document.getElementById("result").innerHTML = response['result']
-        noCheckTrue = false;
-        // console.log("I'm here")
-        // // Finish game
-        // document.getElementById("canvas").style = 'pointer-events: none;';
+        // Finish game
+        var rect = document.createElementNS(svgns, 'rect');
+        rect.setAttributeNS(null, 'x', -heightViewBox);
+        rect.setAttributeNS(null, 'y', -widthViewBox);
+        rect.setAttributeNS(null, 'height', 2 * heightViewBox);
+        rect.setAttributeNS(null, 'width', 2 * widthViewBox);
+        rect.setAttributeNS(null, 'style', "fill:" + response['winner'] + "; cursor: pointer;");
+        rect.setAttributeNS(null, 'class', "build");
+        rect.addEventListener('click', function () {
+            init();
+        })
+
+        canvas.appendChild(rect);
+
     }
 
     if (response.hasOwnProperty("reason")) {
         document.getElementById("reason").innerHTML = response['reason']
-        noCheckTrue = false;
-    }
-
-    if (noCheckTrue) {
-        document.getElementById("noCheckTrue").innerHTML = "AI moves and final results will be visible here."
-    } else {
-        document.getElementById("noCheckTrue").innerHTML = ""
     }
 
 }
@@ -166,7 +167,7 @@ function shadePossibleBuilds(canvas, positions) {
                         
                         const response = JSON.parse(xmlHttp.responseText)
                         drawCanvas(response);
-                        checkIfFinished(response);
+                        checkIfFinished(canvas, response);
                     }, false);
             canvas.appendChild(rect);
         }
@@ -302,6 +303,17 @@ function drawCanvas(res) {
 
 
 function init() {
+    boardState = null;
+
+    playerPos = {
+        'R1': null,
+        'R2': null,
+        'B1': null,
+        'B2': null
+    };
+
+    selectedFigure = null;
+
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", 'http://127.0.0.1:8000/api/init', false ); // false for synchronous request
     xmlHttp.send( null );
