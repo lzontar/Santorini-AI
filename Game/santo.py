@@ -1,8 +1,11 @@
 import warnings
 import random
+import seaborn as sns
+from matplotlib import pyplot as plt
+import pandas as pd
 warnings.simplefilter("always")
 
-
+random.seed(0)
 ### Clears the board of all buildings and pieces.
 def setupBlankBoard():
     empty_space = (0, None)
@@ -25,6 +28,37 @@ class Santorini():
         self.player = self.cols[self.turn%2]
 
 
+    def process_outcome(self, outcome):
+        if outcome==2:
+            print(f'No move available for {self.player}')
+            print(f'{self.player} loses!')
+            self.nextTurn()
+            self.setPlayer()
+            return self.player, self.turn - 1
+        if outcome==3:
+            print(f'{self.player} wins!')
+            return self.player, self.turn
+
+    def doAITurn(self, move_function, build_function):
+        """
+        Outcome 1 = not done
+        Outcome 2 = win
+        Outcome 3 = loss
+        """
+        move = move_function()
+        if not move:
+            return 2
+        print(f'AI makes move {move[0]} -> {move[1]}')
+        self.drawBoard()
+        if self.isDone():
+            return 3
+        build = build_function(move[1])
+        print(f'AI builds on {build}')
+        self.drawBoard()
+        return 1
+
+
+
     ### To be called to change the currently active player.
     ### This parameter is used for correct player move verification.
     def setPlayer(self):
@@ -37,6 +71,15 @@ class Santorini():
         self.turn += 1
 
 
+    def makeHighestMove(self):
+        options = self.getAllCurrentAvailableMoves()
+        if not options:
+            return False
+
+        options.sort(key=lambda x: self.board[x[1][0]][x[1][1]], reverse=True)
+        move = options[0]
+        self.move(move[0], move[1])
+        return move
 
     def makeRandomMove(self):
         options = self.getAllCurrentAvailableMoves()
@@ -46,55 +89,111 @@ class Santorini():
         self.move(move[0], move[1])
         return move
 
+
+
     def makeRandomBuild(self, _to):
         options = self.getAvailableBuilds(_to)
         b = random.choice(options)
         self.build(b)
         return b
+
+    def makeHighestBuild(self, _to):
+        options = self.getAvailableBuilds(_to)
+        options.sort(key=lambda x: self.board[x[0]][x[1]][0], reverse=True)
+
+        """
+        ##prevent building roofs
+        for opt in options:
+            if self.board[opt[0]][opt[1]][0] == 4:
+                continue
+            else:
+                self.build(opt)
+                return opt
+        """
+
+        self.build(options[0])
+        return options[0]
+
+    def makeLowestBuild(self, _to):
+        options = self.getAvailableBuilds(_to)
+        options.sort(key=lambda x: self.board[x[0]][x[1]][0], reverse=False)
+        self.build(options[0])
+        return options[0]
+
+    def Build2nd1st4th3rd(self, _to):
+        options = self.getAvailableBuilds(_to)
+        for i in options:
+            if self.board[i[0]][i[1]][0]==2:
+                self.build(i)
+                return i
+        for i in options:
+            if self.board[i[0]][i[1]][0]==1:
+                self.build(i)
+                return i
+
+        for i in options:
+            if self.board[i[0]][i[1]][0]==4:
+                self.build(i)
+                return i
+        self.build(options[0])
+        return options[0]
+
     ### Main game logic.
     ### Clears board, prompts first player to move.
     ### Checks if player is winning, if not, prompts player to build,
     ### Then changes active player and repeats.
-    def play(self):
+    def play(self, mode=None):
         self.wipe()
         self.turn = 0
         print('WELCOME TO SANTORINI AI!')
         self.drawBoard()
         players = {}
-        mode = input('Please enter \'B\' to play as blue, \'W\' to play as white, \'AI\' to watch AI play and \'WB\' to control both players! ')
+        if not mode:
+            mode = input('Please enter \'B\' to play as blue, \'W\' to play as white, '
+                         '\'AI\' to watch AI play and \'WB\' to control both players! ')
 
-        for i in mode:
-            players.update({i.upper():'Human'})
-        for i in ['W', 'B']:
-            if i not in players:
-                players.update({i : 'AI'})
+            for i in mode:
+                players.update({i.upper():'Human'})
+            for i in ['W', 'B']:
+                if i not in players:
+                    players.update({i : input(f'Please enter agent for \'{i}\' (Random, HighestMove, HighestMoveBuild)')})
+        else:
+            for i in range(len(['W', 'B'])):
+                players.update({['W', 'B'][i] : mode[i]})
 
         while(1):
             self.setPlayer()
             print(f"{self.player}'s turn!")
-            if players[self.player[0]]=='AI':
-                move = self.makeRandomMove()
-                if not move:
-                    print(f'No move available for {self.player}')
-                    print(f'{self.player} loses!')
-                    break
-                print(f'AI makes move {move[0]} -> {move[1]}')
-                self.drawBoard()
-                if self.isDone():
-                    print(f'{self.player} wins!')
-                    break
-                build = self.makeRandomBuild(move[1])
-                print(f'AI builds on {build}')
-                self.drawBoard()
+            if players[self.player[0]]=='Random':
+                outcome = self.doAITurn(self.makeRandomMove, self.makeRandomBuild)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
+            elif players[self.player[0]]=='HighestMove':
+                outcome = self.doAITurn(self.makeHighestMove, self.makeRandomBuild)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
+            elif players[self.player[0]] == 'HighestMoveBuild':
+                outcome = self.doAITurn(self.makeHighestMove, self.makeHighestBuild)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
+            elif players[self.player[0]] == 'HighestMoveLowestBuild':
+                outcome = self.doAITurn(self.makeHighestMove, self.makeLowestBuild)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
+            elif players[self.player[0]] == '2143':
+                outcome = self.doAITurn(self.makeHighestMove, self.Build2nd1st4th3rd)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
             else:
-
                 self.drawBoard()
                 print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
                 moves = self.getAllCurrentAvailableMoves()
                 if not moves:
                     print(f'No move available for {self.player}')
                     print(f'{self.player} loses!')
-                    break
+                    self.nextTurn()
+                    self.setPlayer()
+                    return self.player, self.turn - 1
                 tup = input().split(',')
                 while len(tup) != 2:
                     print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
@@ -110,7 +209,7 @@ class Santorini():
                 self.move(_from, _to)
                 if self.isDone():
                     print(f'{self.player} wins!')
-                    break
+                    return self.player, self.turn
                 self.drawBoard()
                 print(f'Please select a space adjecent to {_to} to build on!')
                 print(f'Available build destinations: {self.getAvailableBuilds(_to)}')
@@ -123,6 +222,7 @@ class Santorini():
                     b = (tup[0].upper(), int(tup[1]))
                 self.build(b)
             self.nextTurn()
+
 
 
 
@@ -162,11 +262,14 @@ class Santorini():
     ### Different starting positions can be achieved by replacing the indices in wipe().
     def wipe(self):
         self.board = setupBlankBoard()
-        self.board['B'][2] = (self.board['B'][2][0], 'B')
-        self.board['B'][4] = (self.board['B'][2][0], 'W')
-        self.board['D'][2] = (self.board['B'][2][0], 'W')
-        self.board['D'][4] = (self.board['B'][2][0], 'B')
-
+        for i in range(2):
+            for pawn in ['B', 'W']:
+                num = random.choice([1, 2, 3, 4, 5])
+                let = random.choice(['A', 'B', 'C', 'D', 'E'])
+                while self.board[let][num][1]:
+                    num = random.choice([1, 2, 3, 4, 5])
+                    let = random.choice(['A', 'B', 'C', 'D', 'E'])
+                self.board[let][num] = (0, pawn)
 
     ### Draws the current board state.
     ### The numbers represent the building's state.
@@ -300,5 +403,31 @@ class Santorini():
         self.board[_to[0]][_to[1]] = (self.board[_to[0]][_to[1]][0], color)
 
 
+
+
 s = Santorini()
-s.play()
+
+turns = []
+mode = ['2143', '2143']
+for j in range(50):
+    winners = {'Players' : ['White', 'Blue'], 'Wins' : [0,0]}
+    for i in range(100):
+        player, turn = s.play(mode=mode)
+        winners['Wins'][winners['Players'].index(player)]+=1
+        turns.append(turn)
+    winners = pd.DataFrame(winners)
+    if j==0:
+        all_winners = winners
+    else:
+        all_winners = all_winners.append(winners)
+
+
+fig, ax = plt.subplots(2,1)
+sns.barplot(x=list(all_winners.Wins), y=all_winners.Players, ax=ax[1], ci='sd')
+sns.kdeplot(x=turns, ax=ax[0])
+ax[0].set_title('Distribution of turn numbers')
+ax[1].set_title('Number of victories')
+plt.suptitle(f'{mode[0]} (W) vs. {mode[1]} (B)')
+plt.subplots_adjust(hspace=0.4)
+plt.savefig('2143 v 2143')
+plt.show()
