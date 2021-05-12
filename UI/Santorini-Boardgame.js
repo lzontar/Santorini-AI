@@ -74,8 +74,10 @@ function deleteElems(class_name) {
 
 function shadePossibleMoves(canvas, positions) {
     const elemsToDelete = canvas.getElementsByClassName("choice");
+    const elemsToDeleteBuild = canvas.getElementsByClassName("build");
+
     const elemsToDeleteLen = elemsToDelete.length;
-    if (elemsToDeleteLen > 0) {
+    if (elemsToDeleteLen > 0 || elemsToDeleteBuild.length > 0) {
         deleteElems("choice")
     } else {
         for (let i = 0; i < positions.length; i++) {
