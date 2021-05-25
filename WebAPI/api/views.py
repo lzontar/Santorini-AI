@@ -36,7 +36,7 @@ def build(request):
     pos = request.GET
     game.build((mapperAlpha(pos['x']), int(pos['y']) + 1))
 
-    game.nextTurn()     # End turn
+    game.nextTurn()  # End turn
     # AI turn
     game.setPlayer()
     move = game.makeRandomMove()
@@ -84,3 +84,10 @@ def init(request):
     global game
     game = Santorini()
     return game.stateToHttpResponse()
+
+
+def setAlgorithmAI(request):
+    algorithm = request.GET['alg']
+
+    game.setAlgorithmAI(algorithm)
+    return True
