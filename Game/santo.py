@@ -229,7 +229,6 @@ class Santorini():
             print('\n', end='')
 
 
-
     def isDone(self):
         ### Check if any player has achieved victory.
         ### Used as a stopping criterion in several functions.
@@ -419,30 +418,7 @@ class Santorini():
         return True
 
 
-    #Used in minmax to create children of current board state.
-    def make_children(self):
-        self.children = self.get_all_next_states()
 
-    def get_all_next_states(self): #used to generate list of children of current board state
-        states = []
-        if not self.isDone():
-            for move in self.getAllCurrentAvailableMoves():
-                s = Santorini(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn))
-                s.move(move[0], move[1])
-                if not s.isDone():
-                    for build in s.getAvailableBuilds(move[1]):
-                        ss = Santorini(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
-                        ss.build(build)
-                        ss.nextTurn()
-                        ss.setPlayer()
-                        assert ss.player != s.player
-                        assert ss.turn == s.turn +1
-                        states.append({'State' : ss, 'Move' : move, 'Build' : build})
-                else:
-                    states.append({'State' : s, 'Move' : move, 'Build' : None})
-                    continue
-            return states
-        else: return [{'State' : self, 'Move' : ((None, None), (None, None)), 'Build' : None}]
 
 
     #=====================GENERAL AI METHODS========================#
@@ -638,7 +614,7 @@ class Santorini():
                 if not self.areAdjacent(space, dest): continue #this should be redundant
                 height = self.board[dest[0]][dest[1]][0] #log the height of the adjecent space
                 if height == 4: continue # should be redundant
-                if height == 3:
+                if height == 3: ## dodaj - ce si na 2. nadstropju
                     if pawn == self.player[0]:
                         return winning_state ## it is the current player's turn and an adjecent 3-space is open.
                     else: temp_value += height*1.5 #the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
@@ -648,3 +624,28 @@ class Santorini():
                 temp_value *= -1
             pawn_height_value += temp_value
         return pawn_height_value
+
+        #Used in minmax to create children of current board state.
+    def make_children(self):
+        self.children = self.get_all_next_states()
+
+    def get_all_next_states(self): #used to generate list of children of current board state
+        states = []
+        if not self.isDone():
+            for move in self.getAllCurrentAvailableMoves():
+                s = Santorini(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn))
+                s.move(move[0], move[1])
+                if not s.isDone():
+                    for build in s.getAvailableBuilds(move[1]):
+                        ss = Santorini(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
+                        ss.build(build)
+                        ss.nextTurn()
+                        ss.setPlayer()
+                        assert ss.player != s.player
+                        assert ss.turn == s.turn +1
+                        states.append({'State' : ss, 'Move' : move, 'Build' : build})
+                else:
+                    states.append({'State' : s, 'Move' : move, 'Build' : None})
+                    continue
+            return states
+        else: return [{'State' : self, 'Move' : ((None, None), (None, None)), 'Build' : None}]
