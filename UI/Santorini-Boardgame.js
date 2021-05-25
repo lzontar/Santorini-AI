@@ -303,8 +303,8 @@ function drawCanvas(res) {
 
 }
 
-
 function init() {
+
     boardState = null;
 
     playerPos = {
@@ -323,4 +323,9 @@ function init() {
     drawCanvas(
         JSON.parse(xmlHttp.responseText)
     );
+    setAlgorithmAI('Random move AI')
+}
+
+function setAlgorithmAI(alg) {
+    document.getElementById("dropdownMenuButtonAI").innerText = alg;
 }

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="Santorini-Boardgame.css">
     <title>Santorini</title>
@@ -29,6 +29,19 @@
 <div class="main col-md-7 col-xs-7">
     <div class="s-container">
         <div id="results">
+            <div style="font-size: 24px;">AI algorithm</div>
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonAI" data-bs-toggle="dropdown" aria-expanded="false">
+                Choose AI algorithm
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><a class="dropdown-item" onclick="setAlgorithmAI('Random')">Random</a></li>
+                <li><a class="dropdown-item" onclick="setAlgorithmAI('Highest move')">Highest move</a></li>
+                <li><a class="dropdown-item" onclick="setAlgorithmAI('Highest move and build')">Highest move and build</a></li>
+                <li><a class="dropdown-item" onclick="setAlgorithmAI('Heuristics 2143')">Heuristics 2143</a></li>
+              </ul>
+            </div>
+            <div style="font-weight:bold; font-size: 12px;">NOTE: changing AI algorithm will reset the game.</div>
             <div style="font-size: 24px;">Application log</div>
             <div style="font-weight:bold; font-size: 12px;">AI moves and final results will be visible here.</div>
             <div id="move"></div>
@@ -46,9 +59,10 @@
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <!--<script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>-->
 <!--<script src="../../../../assets/js/vendor/popper.min.js"></script>-->
 <!--<script src="../../../../dist/js/bootstrap.min.js"></script>-->
+<!-- Latest compiled and minified CSS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
 <script src="Santorini-Boardgame.js"></script>
 </body>

@@ -6,6 +6,7 @@ from django.http import HttpResponse
 
 from .lib import setupBlankBoard
 
+
 class Santorini():
     def __init__(self):
         self.board = setupBlankBoard()
@@ -13,6 +14,7 @@ class Santorini():
         self.cols = ['Red', 'Blue']
         self.turn = 0
         self.player = self.cols[self.turn % 2]
+        self.algAI = 'Random move AI'
 
     # To be called to change the currently active player.
     # This parameter is used for correct player move verification.
@@ -38,86 +40,32 @@ class Santorini():
         self.build(b)
         return b
 
-    # Main game logic.
-    # Clears board, prompts first player to move.
-    # Checks if player is winning, if not, prompts player to build,
-    # Then changes active player and repeats.
-    def play(self):
-        self.wipe()
-        self.turn = 0
-        print('WELCOME TO SANTORINI AI!')
-        self.drawBoard()
-        players = {}
-        mode = input(
-            'Please enter \'B\' to play as blue, \'W\' to play as white, \'AI\' to watch AI play and \'WB\' to control both players! ')
-
-        for i in mode:
-            players.update({i.upper(): 'Human'})
-        for i in ['R', 'B']:
-            if i not in players:
-                players.update({i: 'AI'})
-
-        while (1):
-            self.setPlayer()
-            print(f"{self.player}'s turn!")
-            if players[self.player[0]] == 'AI':
-                move = self.makeRandomMove()
-                if not move:
-                    print(f'No move available for {self.player}')
-                    print(f'{self.player} loses!')
-                    break
-                print(f'AI makes move {move[0]} -> {move[1]}')
-                self.drawBoard()
-                if self.isDone():
-                    print(f'{self.player} wins!')
-                    break
-                build = self.makeRandomBuild(move[1])
-                print(f'AI builds on {build}')
-                self.drawBoard()
-            else:
-
-                self.drawBoard()
-                print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
-                moves = self.getAllCurrentAvailableMoves()
-                if not moves:
-                    print(f'No move available for {self.player}')
-                    print(f'{self.player} loses!')
-                    break
-                tup = input().split(',')
-                while len(tup) != 2:
-                    print('Incorrect format! Please enter START_SPACE,END_SPACE, separated with a comma!')
-                    tup = input().split(',')
-                _from = (tup[0][0].upper(), int(tup[0][1]))
-                _to = (tup[1][-2].upper(), int(tup[1][-1]))
-                while not self.canMove(_from, _to):
-                    print('Invalid move!')
-                    print(f'Please select {self.player} pawn to move (format = RC,RC ie. B2,B3)')
-                    tup = input().split(',')
-                    _from = (tup[0][0].upper(), int(tup[0][1]))
-                    _to = (tup[1][-2].upper(), int(tup[1][-1]))
-                self.move(_from, _to)
-                if self.isDone():
-                    print(f'{self.player} wins!')
-                    break
-                self.drawBoard()
-                print(f'Please select a space adjecent to {_to} to build on!')
-                print(f'Available build destinations: {self.getAvailableBuilds(_to)}')
-                tup = input()
-                b = (tup[0].upper(), int(tup[1]))
-                while not self.canBuild(b, _to):
-                    print('Can\'t build on desired space!')
-                    print(f'Please select a space adjecent to {_to} to build on!')
-                    tup = input()
-                    b = (tup[0].upper(), int(tup[1]))
-                self.build(b)
-            self.nextTurn()
+    def makeAIMove(self):
+        if self.algAI == 'Random move/build AI':
+            return self.makeRandomMove()
+        if self.algAI == 'Highest move':
+            return self.makeRandomMove()
+        if self.algAI == 'Highest move and build':
+            return self.makeMoveHighest()
+        if self.algAI == 'Heuristics 2143':
+            return self.makeMove2143()
+        
+    def makeAIBuild(self, _to):
+        if self.algAI == 'Random move/build AI':
+            return self.makeRandomBuild(_to)
+        if self.algAI == 'Highest move':
+            return self.makeRandomBuild(_to)
+        if self.algAI == 'Highest move and build':
+            return self.makeBuildHighest(_to)
+        if self.algAI == 'Heuristics 2143':
+            return self.makeBuild2143(_to)
 
     def getAllCurrentAvailableMoves(self, verbose=False):
         pawn = self.player[0]
         moves = []
         for row in self.board:
             for col in self.board[row]:
-                if self.board[row][col][1] is not None and  self.board[row][col][1].startswith(pawn):
+                if self.board[row][col][1] is not None and self.board[row][col][1].startswith(pawn):
                     if verbose: print(f'Pawn on {(row, col)} can move to:')
                     dests = self.getAvailableMoves((row, col))
                     if verbose: print(dests)
@@ -154,7 +102,7 @@ class Santorini():
 
     # Draws the current board state.
     # The numbers represent the building's state.
-    # The letters represent the (B)lue and (W)hite pawns.
+    # The letters represent the (B)lue and (R)ed pawns.
     def drawBoard(self):
         print('\t', end='')
         for i in range(5):
@@ -216,8 +164,8 @@ class Santorini():
 
     def canMove(self, _from, _to, filter="always"):
         warnings.simplefilter(filter)
-        ##takes from and to as tuprc.
-        ##check if spaces are adjacent:
+        # takes from and to as tuprc.
+        # check if spaces are adjacent:
         if not self.check_lets(_from[0]) or not self.check_lets(_to[0]):
             warnings.warn('Valid column indices are A-E.')
             return False
@@ -233,16 +181,16 @@ class Santorini():
         if not self.areAdjacent(_from, _to):
             warnings.warn(f'Spaces are not adjecent')
             return False
-        ##check if goal space is full
+        # check if goal space is full
         if self.spaceTaken(_to):
             warnings.warn('target space already full')
             return False
-        ##check if the goal space is at most 1 higher than the start space
+        # check if the goal space is at most 1 higher than the start space
         if self.getAltitudeDiff(_from, _to) > 1:
             warnings.warn('Target space too high!')
             return False
 
-        ##check if goal space doesn't have dome:
+        # check if goal space doesn't have dome:
         if self.hasRoof(_to):
             warnings.warn('Target space already has a roof')
             return False
@@ -288,7 +236,8 @@ class Santorini():
                         canMove = True
         return canMove
 
-
     def stateToHttpResponse(self):
         return HttpResponse(json.dumps(self.__dict__))
 
+    def setAlgorithmAI(self, algorithm):
+        self.algAI = algorithm
