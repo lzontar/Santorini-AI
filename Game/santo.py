@@ -5,8 +5,7 @@ from sys import maxsize
 warnings.simplefilter("always")
 
 #The logic for the minimax algorithm is in a seperate file.
-from minimax import MinMax, __MAXMINDICT__, BIG_NUMBER
-
+from minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization
 """
 White is maximizer
 Blue is minimizer
@@ -458,6 +457,8 @@ class Santorini():
         pawn = self.player[0]
         moves = []
         if not self.isDone():
+
+
             for row in self.board:
                 for col in self.board[row]:
                     if self.board[row][col][1] == pawn:
@@ -586,7 +587,8 @@ class Santorini():
         Outcome 2 = win
         Outcome 3 = loss
         """
-        _, strategy = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        emptyMemoization()
+        _, strategy, ix = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
         print(strategy)
         move = strategy['Move']
         if not move:
