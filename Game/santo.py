@@ -1,6 +1,7 @@
 import warnings
 import random
 import copy
+from sys import maxsize
 warnings.simplefilter("always")
 
 #The logic for the minimax algorithm is in a seperate file.
@@ -302,7 +303,6 @@ class Santorini():
         Proceeds to the next turn.
         Parameter is used to determine which player can currently move (used in
         checking validity of selected moves).
-        :return:
         """
         self.turn += 1
 
@@ -432,10 +432,12 @@ class Santorini():
                 s.move(move[0], move[1])
                 if not s.isDone():
                     for build in s.getAvailableBuilds(move[1]):
-                        ss = Santorini(new=False, board=copy.deepcopy(s.board))
+                        ss = Santorini(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
                         ss.build(build)
                         ss.nextTurn()
                         ss.setPlayer()
+                        assert ss.player != s.player
+                        assert ss.turn == s.turn +1
                         states.append({'State' : ss, 'Move' : move, 'Build' : build})
                 else:
                     states.append({'State' : s, 'Move' : move, 'Build' : None})
@@ -584,7 +586,7 @@ class Santorini():
         Outcome 2 = win
         Outcome 3 = loss
         """
-        _, strategy = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth)
+        _, strategy = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
         print(strategy)
         move = strategy['Move']
         if not move:
@@ -644,9 +646,3 @@ class Santorini():
                 temp_value *= -1
             pawn_height_value += temp_value
         return pawn_height_value
-
-
-###===== TESTING AND EVALUATION =====#
-#
-#
-#
