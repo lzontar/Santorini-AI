@@ -14,7 +14,7 @@ class Santorini():
         self.cols = ['Red', 'Blue']
         self.turn = 0
         self.player = self.cols[self.turn % 2]
-        self.algAI = 'Random move AI'
+        self.algAI = 'Heuristics 2143' # changed this
 
     # To be called to change the currently active player.
     # This parameter is used for correct player move verification.
@@ -25,6 +25,57 @@ class Santorini():
     # can move.
     def nextTurn(self):
         self.turn += 1
+
+
+    def makeHighestMove(self):
+        options = self.getAllCurrentAvailableMoves()
+        if not options:
+            return False
+
+        options.sort(key=lambda x: self.board[x[1][0]][x[1][1]], reverse=True)
+        move = options[0]
+        self.move(move[0], move[1])
+        return move
+
+    def Build2143(self, _to):
+        ## This order ensures that this AI doesn't build the third floor
+        ## for its oponnent (unless absolutely necessary)
+        options = self.getAvailableBuilds(_to)
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==2:
+                self.build(i)
+                return i
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==1:
+                self.build(i)
+                return i
+
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==4:
+                self.build(i)
+                return i
+        self.build(options[0])
+        return options[0]
+
+    def Build3241(self, _to):
+        ## This order ensures that this AI doesn't build the third floor
+        ## for its oponnent (unless absolutely necessary)
+        options = self.getAvailableBuilds(_to)
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==3:
+                self.build(i)
+                return i
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==2:
+                self.build(i)
+                return i
+
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==4:
+                self.build(i)
+                return i
+        self.build(options[0])
+        return options[0]
 
     def makeRandomMove(self):
         options = self.getAllCurrentAvailableMoves()
@@ -46,9 +97,9 @@ class Santorini():
         if self.algAI == 'Highest move':
             return self.makeRandomMove()
         if self.algAI == 'Highest move and build':
-            return self.makeMoveHighest()
+            return self.makeHighestMove()
         if self.algAI == 'Heuristics 2143':
-            return self.makeMove2143()
+            return self.makeHighestMove()
         
     def makeAIBuild(self, _to):
         if self.algAI == 'Random move/build AI':
@@ -58,7 +109,7 @@ class Santorini():
         if self.algAI == 'Highest move and build':
             return self.makeBuildHighest(_to)
         if self.algAI == 'Heuristics 2143':
-            return self.makeBuild2143(_to)
+            return self.Build2nd1st4th3rd(_to)
 
     def getAllCurrentAvailableMoves(self, verbose=False):
         pawn = self.player[0]

@@ -39,7 +39,7 @@ def build(request):
     game.nextTurn()  # End turn
     # AI turn
     game.setPlayer()
-    move = game.makeRandomMove()
+    move = game.makeAIMove()
     if not move:
         gameDict = game.__dict__.copy()
         gameDict['result'] = f'{game.player} loses!'
@@ -48,7 +48,7 @@ def build(request):
 
         return HttpResponse(json.dumps(gameDict))
 
-    build = game.makeRandomBuild(move[1])
+    build = game.makeAIBuild(move[1])
 
     if game.isDone():
         gameDict = game.__dict__.copy()

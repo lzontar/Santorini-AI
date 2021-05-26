@@ -124,7 +124,11 @@ class Santorini():
                 if outcome != 1:
                     return self.process_outcome(outcome)
             elif players[self.player[0]] == '2143':
-                outcome = self.doAITurn(self.makeHighestMove, self.Build2nd1st4th3rd)
+                outcome = self.doAITurn(self.makeHighestMove, self.Build2143)
+                if outcome != 1:
+                    return self.process_outcome(outcome)
+            elif players[self.player[0]] == '3241':
+                outcome = self.doAITurn(self.makeHighestMove, self.Build3241)
                 if outcome != 1:
                     return self.process_outcome(outcome)
             else:
@@ -191,21 +195,27 @@ class Santorini():
 
 
 
-    def wipe(self):
+    def wipe(self, fixed=False):
         ### Wipes board and sets pieces in default starting positions. Note that
         ### Different starting positions can be achieved by replacing the indices in wipe().
         ### Currently, random starting positions are implemented.
         self.board = setupBlankBoard()
         pawns = {'W' : [], 'B' : []}
-        for i in range(2):
-            for pawn in ['B', 'W']:
-                num = random.choice([1, 2, 3, 4, 5])
-                let = random.choice(['A', 'B', 'C', 'D', 'E'])
-                while self.board[let][num][1]:
+        if not fixed:
+            for i in range(2):
+                for pawn in ['B', 'W']:
                     num = random.choice([1, 2, 3, 4, 5])
                     let = random.choice(['A', 'B', 'C', 'D', 'E'])
-                self.board[let][num] = (0, pawn)
-                pawns[pawn].append((let, num))
+                    while self.board[let][num][1]:
+                        num = random.choice([1, 2, 3, 4, 5])
+                        let = random.choice(['A', 'B', 'C', 'D', 'E'])
+                    self.board[let][num] = (0, pawn)
+                    pawns[pawn].append((let, num))
+        else:
+            self.board['B'][2] = (0,'W')
+            self.board['D'][4] = (0,'W')
+            self.board['B'][4] = (0,'B')
+            self.board['D'][2] = (0,'B')
         self.pawns = pawns
 
 
@@ -520,21 +530,41 @@ class Santorini():
         self.build(options[0])
         return options[0]
 
-    def Build2nd1st4th3rd(self, _to):
+    def Build2143(self, _to):
         ## This order ensures that this AI doesn't build the third floor
         ## for its oponnent (unless absolutely necessary)
         options = self.getAvailableBuilds(_to)
         for i in options:
-            if self.board[i[0]][i[1]][0]==2:
+            if self.board[i[0]][i[1]][0]+1==2:
                 self.build(i)
                 return i
         for i in options:
-            if self.board[i[0]][i[1]][0]==1:
+            if self.board[i[0]][i[1]][0]+1==1:
                 self.build(i)
                 return i
 
         for i in options:
-            if self.board[i[0]][i[1]][0]==4:
+            if self.board[i[0]][i[1]][0]+1==4:
+                self.build(i)
+                return i
+        self.build(options[0])
+        return options[0]
+
+    def Build3241(self, _to):
+        ## This order ensures that this AI doesn't build the third floor
+        ## for its oponnent (unless absolutely necessary)
+        options = self.getAvailableBuilds(_to)
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==3:
+                self.build(i)
+                return i
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==2:
+                self.build(i)
+                return i
+
+        for i in options:
+            if self.board[i[0]][i[1]][0]+1==4:
                 self.build(i)
                 return i
         self.build(options[0])
@@ -586,44 +616,7 @@ class Santorini():
         """
         self.value = self.pawn_height_proximity_value()
 
-    def pawn_height_proximity_value(self):
-        """
-        Heuristic function that evaluates game states.
-        Favors situations where agent is standing as high as possible, surrounded
-        by buildings that are as high as possible, while the oponnent is as low as possible.
 
-        """
-        winning_state = BIG_NUMBER*__MAXMINDICT__[self.player]
-        if self.isDone():
-            return winning_state
-        pawn_height_value = 0
-
-        pawns = self.get_pawns()
-        pawns = [space for list in list(pawns.values()) for space in list]
-        for space in pawns:
-            let, num = space[0], space[1]
-            pawn = self.board[let][num][1]
-            if not pawn: warnings.warn('There should be a pawn here.') # should be redundant
-            temp_value = 0
-            temp_value += self.board[let][num][0] #add the current height of the pawn
-            for move in self.getAllCurrentAvailableMoves():
-                if move[0] != space: continue #this should be redundant
-                dest = move[1]
-                if not self.areAdjacent(space, dest): continue #this should be redundant
-                height = self.board[dest[0]][dest[1]][0] #log the height of the adjecent space
-                if height == 4: continue # should be redundant
-                if height == 3: ## dodaj - ce si na 2. nadstropju
-                    if pawn == self.player[0]:
-                        return winning_state ## it is the current player's turn and an adjecent 3-space is open.
-                    else: temp_value += height*1.5 #the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
-                elif height >0: temp_value += height
-                else: continue # consider adding some reward here as well.
-            if pawn != self.player[0]:
-                temp_value *= -1
-            pawn_height_value += temp_value
-        return pawn_height_value
-
-        #Used in minmax to create children of current board state.
     def make_children(self):
         self.children = self.get_all_next_states()
 
@@ -647,3 +640,66 @@ class Santorini():
                     continue
             return states
         else: return [{'State' : self, 'Move' : ((None, None), (None, None)), 'Build' : None}]
+
+
+    #===== HEURISTICS & HELPERS ====== #
+
+    def pawn_height_proximity_value(self):
+        """
+        Heuristic function that evaluates game states.
+        Favors situations where agent is standing as high as possible, surrounded
+        by buildings that are as high as possible, while the oponnent is as low as possible.
+
+        """
+        winning_state = BIG_NUMBER*__MAXMINDICT__[self.player]
+        if self.isDone():
+            return winning_state
+        pawn_height_value = 0
+
+        pawns = self.get_pawns()
+        pawns = [space for list in list(pawns.values()) for space in list]
+        for space in pawns:
+            let, num = space[0], space[1]
+            pawn = self.board[let][num][1]
+            if not pawn: warnings.warn('There should be a pawn here.') # should be redundant
+            temp_value = 0
+            current_height = self.board[let][num][0]
+            temp_value += current_height #add the current height of the pawn
+            for move in self.getAllCurrentAvailableMoves():
+                if move[0] != space: continue #this should be redundant
+                dest = move[1]
+                if not self.areAdjacent(space, dest): continue #this should be redundant
+                dest_height = self.board[dest[0]][dest[1]][0] #log the height of the adjecent space
+                if dest_height == 4: continue # should be redundant
+                if dest_height == 3:
+                    if current_height == 2:
+                        if pawn == self.player[0]:
+                            return winning_state/2 ## it is the current player's turn and an adjecent 3-space is open.
+                        else: temp_value += dest_height*2*current_height #the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
+                elif dest_height >0: temp_value += dest_height*current_height
+            if pawn != self.player[0]:
+                temp_value *= -1
+            pawn_height_value += temp_value
+        return pawn_height_value
+
+        #Used in minmax to create children of current board state.
+
+    def heustistic_2(self):
+        sign = __MAXMINDICT__[self.player]
+        winning_state = BIG_NUMBER*sign
+        if self.isDone():
+            return winning_state
+        master_value = 0
+        pawn_spaces = [space for x in list(self.get_pawns().values()) for space in x]
+        for current in pawn_spaces:
+            temp_val = 0
+            let, num = current[0], current[1]
+            current_height = self.board[let][num][0]
+            pawn = self.board[let][num][1]
+            temp_val += current_height
+            for move in self.getAllCurrentAvailableMoves():
+                if move[0] != space: continue #this should be redundant
+            dest = move[1]
+
+
+

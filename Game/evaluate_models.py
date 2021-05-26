@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 from santo import Santorini
 
-AGENTS = ['Minmaxer', '2143', 'HighestMove', 'HighestMoveLowestBuild', 'Random']
+AGENTS = ['Minmaxer', '2143', 'HighestMove', 'HighestMoveLowestBuild', 'Random', '3241']
 
 def run_tests(white='Minmaxer', blue='2143', gpl=10, loops=5):
     s = Santorini()
