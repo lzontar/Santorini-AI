@@ -7,7 +7,7 @@ import warnings
 
 
 
-def pawn_height_proximity_value(state):
+def hr2heur (state):
     """
     Heuristic function that evaluates game states.
     Favors situations where agent is standing as high as possible, surrounded
@@ -25,8 +25,10 @@ def pawn_height_proximity_value(state):
         pawn = state.board[let][num][1]
         if not pawn: warnings.warn('There should be a pawn here.')  # should be redundant
         temp_value = 0
-        temp_value += state.board[let][num][0]  # add the current height of the pawn
-        for move in state.getAllCurrentAvailableMoves():
+        temp_value += (state.board[let][num][0]+1)**2# add the current height of the pawn
+        moves = state.getAllCurrentAvailableMoves()
+        temp_value += len(moves)
+        for move in moves:
             if move[0] != space: continue  # this should be redundant
             dest = move[1]
             if not state.areAdjacent(space, dest): continue  # this should be redundant
@@ -34,20 +36,18 @@ def pawn_height_proximity_value(state):
             if height == 4: continue  # should be redundant
             if height == 3:  ## dodaj - ce si na 2. nadstropju
                 if pawn == state.player[0]:
-                    return winning_state -10  ## it is the current player's turn and an adjecent 3-space is open.
+                    temp_value += height * 3  ## it is the current player's turn and an adjecent 3-space is open.
                 else:
-                    temp_value += height * 1.5  # the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
+                    temp_value += height * 10  # the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
             elif height > 0:
                 temp_value += height
-            else:
-                continue  # consider adding some reward here as well.
         if pawn != state.player[0]:
             temp_value *= -1
         pawn_height_value += temp_value
     return pawn_height_value
 
-class Highriser(Santorini):
+class Highriser2(Santorini):
 
     def evaluate_current_board_state(self):
-        self.algAI = 'Highriser'
-        self.value = pawn_height_proximity_value(self)
+        self.algAI = 'Highriser2'
+        self.value = hr2heur(self)

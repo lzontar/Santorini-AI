@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from .util.Santorini import Santorini
 from .util.Minmaxers.LowIsGood import LowIsGood
 from .util.Minmaxers.Highriser import Highriser
+from .util.Minmaxers.Highriser2 import Highriser2
 from .util.lib import mapperAlpha
 
 
@@ -63,6 +64,8 @@ def get_game(alg):
         return LowIsGood()
     elif alg == 'Highriser':
         return Highriser()
+    elif alg == 'Highriser2':
+        return Highriser2()
     return Santorini()
 
 def init(request):

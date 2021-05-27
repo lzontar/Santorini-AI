@@ -23,13 +23,13 @@ def get_ix():
     return ix
 
 def MinMax(state, depth, start_depth, alpha, beta):
-    if json.dumps(state_to_dict(state['State'])) in MEMOIZATION.keys():
-        return MEMOIZATION[json.dumps(state_to_dict(state['State']))]
+    #if json.dumps(state_to_dict(state['State'])) in MEMOIZATION.keys():
+    #    return MEMOIZATION[json.dumps(state_to_dict(state['State']))]
     player = state['State'].player
     sign = __MAXMINDICT__[player]
     if (depth == 0) or (abs(state['State'].value) >= BIG_NUMBER) or state[
         'State'].isDone():  # if victory is achieved in this state or we've reached our depth limit, do...
-        return state
+        return state['State'].value, state
 
     goal = BIG_NUMBER * sign  # this is the state value we want to achieve
     best_val = goal * -1  # start at the smallest possible value
@@ -44,7 +44,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
     # print(f'make_children executed in: {round(time1 - time0, 2)}s')
 
     for child in state['State'].children:
-        observed_future = MinMax(child, depth - 1, start_depth, alpha, beta)
+        _, observed_future = MinMax(child, depth - 1, start_depth, alpha, beta)
         observed_value = observed_future['State'].value  # Extract the value, returned from the future state
         if abs(goal - observed_value) < abs(
                 goal - best_val):  # if this state gets us closer to our desired goal (victory), do...
@@ -63,7 +63,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
     if json.dumps(state_to_dict(state['State'])) not in MEMOIZATION.keys():
         MEMOIZATION[json.dumps(state_to_dict(state['State']))] = best_state
 
-    return best_state
+    return best_val, best_state
 
 
 def state_to_dict(_state):

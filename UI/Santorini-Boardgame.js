@@ -316,7 +316,7 @@ function init(alg) {
 
     selectedFigure = null;
     if (alg == null)
-        alg = '2143'
+        alg = '3214'
 
     document.getElementById("dropdownMenuButtonAI").innerText = alg
 

@@ -121,7 +121,7 @@ class Santorini():
             outcome = self.doAITurn(self.makeHighestMove, self.makeLowestBuild)
             if outcome != 1:
                 return self.process_outcome(outcome)
-        elif players[self.player[0]] == '2143':
+        elif players[self.player[0]] == '3214':
             outcome = self.doAITurn(self.makeHighestMove, self.Build2nd1st4th3rd)
             if outcome != 1:
                 return self.process_outcome(outcome)
@@ -604,7 +604,7 @@ class Santorini():
 
         time0 = time.time()
         emptyMemoization()
-        best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        future_val, best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
         time1 = time.time()
         print(f'MinMax iter executed in: {round(time1 - time0, 2)}s')
         self.set_state(state=best_state['State'])
@@ -625,6 +625,8 @@ class Santorini():
 
 
         self.drawBoard()
+        print(f'Current state: {self.value}')
+        print(f'Decision made based on future state with value: {future_val}')
         return 1
 
     def evaluate_current_board_state(self):
