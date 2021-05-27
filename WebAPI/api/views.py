@@ -17,12 +17,8 @@ def move(request):
     gameDict['availableConstructions'] = game.getAvailableBuilds(_to)
 
     if game.isDone():
-        gameDict = game.__dict__.copy()
-        gameDict['result'] = f'{game.player} wins!'
-        gameDict['reason'] = f'{game.player} reached the top floor!'
-        gameDict['winner'] = game.player.lower()
+        return win()
 
-    gameDict['children'] = []
     return HttpResponse(json.dumps(gameDict))
 
 
@@ -33,15 +29,44 @@ def choose(request):
     return HttpResponse(json.dumps(availableMoves))
 
 
+def win():
+    gameDict = game.__dict__.copy()
+    gameDict['result'] = f'{game.player} wins!'
+    gameDict['reason'] = f'{game.player} reached the top floor!'
+    gameDict['winner'] = game.player.lower()
+    gameDict['children'] = []
+    return HttpResponse(json.dumps(gameDict))
+
 def build(request):
     pos = request.GET
     game.build((mapperAlpha(pos['x']), int(pos['y']) + 1))
 
     game.nextTurn()  # End turn
+    if game.isDone():
+        return win()
 
     game.play(mode=[None, game.algAI], cmd=False)
     game.setPlayer()
-    # AI turn
+
+    if game.isDone():
+        return win()
+
+    gameDict = game.__dict__.copy()
+    gameDict['children'] = []
+    return HttpResponse(json.dumps(gameDict))
+
+
+def init(request):
+    algorithm = request.GET['alg']
+
+    global game
+    game = Santorini()
+    game.setAlgorithmAI(algorithm)
+
+    return game.stateToHttpResponse()
+
+
+# AI turn
     # game.setPlayer()
     # move = game.makeRandomMove()
     # if not move:
@@ -80,16 +105,3 @@ def build(request):
     #     gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
     #
     #     return HttpResponse(json.dumps(gameDict))
-    gameDict = game.__dict__.copy()
-    gameDict['children'] = []
-    return HttpResponse(json.dumps(gameDict))
-
-
-def init(request):
-    algorithm = request.GET['alg']
-
-    global game
-    game = Santorini()
-    game.setAlgorithmAI(algorithm)
-
-    return game.stateToHttpResponse()
