@@ -7,5 +7,4 @@ urlpatterns = [
     path('init', views.init, name='init'),
     path('choose', views.choose, name='choose'),
     path('build', views.build, name='build'),
-    path('setAlgorithmAI', views.setAlgorithmAI, name='setAlgorithmAI')
 ]

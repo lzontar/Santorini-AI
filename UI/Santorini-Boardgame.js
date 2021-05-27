@@ -303,7 +303,7 @@ function drawCanvas(res) {
 
 }
 
-function init() {
+function init(alg) {
 
     boardState = null;
 
@@ -315,17 +315,16 @@ function init() {
     };
 
     selectedFigure = null;
+    if (alg == null)
+        alg = 'Random'
+
+    document.getElementById("dropdownMenuButtonAI").innerText = alg
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", 'http://127.0.0.1:8000/api/init', false ); // false for synchronous request
+    xmlHttp.open( "GET", 'http://127.0.0.1:8000/api/init?alg=' + alg, false ); // false for synchronous request
     xmlHttp.send( null );
 
     drawCanvas(
         JSON.parse(xmlHttp.responseText)
     );
-    setAlgorithmAI('Random move AI')
-}
-
-function setAlgorithmAI(alg) {
-    document.getElementById("dropdownMenuButtonAI").innerText = alg;
 }

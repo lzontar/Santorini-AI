@@ -1,7 +1,7 @@
 import seaborn as sns
 from matplotlib import pyplot as plt
 import pandas as pd
-from santo import Santorini
+from WebAPI.api.util.Santorini import Santorini
 
 AGENTS = ['Minmaxer', '2143', 'HighestMove', 'HighestMoveLowestBuild', 'Random']
 
@@ -38,20 +38,20 @@ def run_tests(white='Minmaxer', blue='2143', gpl=10, loops=5):
 
 
 def ux_for_tests():
-    white = input('Please input desired agent to play as white: ')
+    white = 'Random' # input('Please input desired agent to play as white: ')
     if white not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         white = 'Random'
     else:
         print(f'Selected {white}.')
-    blue = input('Please input desired agent to play as blue: ')
+    blue =  'Minmaxer' # input('Please input desired agent to play as blue: ')
     if blue not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         blue = 'Random'
     else:
         print(f'Selected {blue}.')
-    gpl = int(input('Please enter the desired number of games to play each loop: '))
-    loops = int(input('Please enter number of loops to play (to show uncertainty): '))
+    gpl = 1 # int(input('Please enter the desired number of games to play each loop: '))
+    loops = 1 # int(input('Please enter number of loops to play (to show uncertainty): '))
     run_tests(white, blue, gpl, loops)
 
 if __name__ == "__main__":

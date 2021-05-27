@@ -35,11 +35,12 @@
                 Choose AI algorithm
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li><a class="dropdown-item" onclick="setAlgorithmAI('Random')">Random</a></li>
-                <li><a class="dropdown-item" onclick="setAlgorithmAI('Highest move')">Highest move</a></li>
-                <li><a class="dropdown-item" onclick="setAlgorithmAI('Highest move and build')">Highest move and build</a></li>
-                <li><a class="dropdown-item" onclick="setAlgorithmAI('Heuristics 2143')">Heuristics 2143</a></li>
-              </ul>
+                <li><a class="dropdown-item" onclick="init('Random')">Random</a></li>
+                <li><a class="dropdown-item" onclick="init('Minmaxer')">Minmaxer</a></li>
+                <li><a class="dropdown-item" onclick="init('2143')">Highest move and build</a></li>
+                <li><a class="dropdown-item" onclick="init('HighestMove')">HighestMove</a></li>
+                <li><a class="dropdown-item" onclick="init('HighestMoveLowestBuild')">HighestMoveLowestBuild</a></li>
+             </ul>
             </div>
             <div style="font-weight:bold; font-size: 12px;">NOTE: changing AI algorithm will reset the game.</div>
             <div style="font-size: 24px;">Application log</div>

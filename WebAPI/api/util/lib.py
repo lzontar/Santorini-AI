@@ -1,3 +1,8 @@
+
+LETTERS = ['A', 'B', 'C', 'D', 'E']
+NUMBERS = list(range(1,6))
+players = ['Red', 'Blue']
+
 ### Clears the board of all buildings and pieces.
 def setupBlankBoard():
     empty_space = (0, None)
@@ -8,6 +13,10 @@ def setupBlankBoard():
     for letter in ['A', 'B', 'C', 'D', 'E']:
         board.update({letter : row.copy()})
     return board
+
+
+def BlankPawnDict():
+    return {'R' : [], 'B' : []}
 
 
 def mapperAlpha(ix):

@@ -37,57 +37,57 @@ def build(request):
     game.build((mapperAlpha(pos['x']), int(pos['y']) + 1))
 
     game.nextTurn()  # End turn
+
+    game.play(mode=[None, game.algAI], cmd=False)
+    game.setPlayer()
     # AI turn
-    game.setPlayer()
-    move = game.makeRandomMove()
-    if not move:
-        gameDict = game.__dict__.copy()
-        gameDict['result'] = f'{game.player} loses!'
-        gameDict['reason'] = f'{game.player} cannot move!'
-        gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
+    # game.setPlayer()
+    # move = game.makeRandomMove()
+    # if not move:
+    #     gameDict = game.__dict__.copy()
+    #     gameDict['result'] = f'{game.player} loses!'
+    #     gameDict['reason'] = f'{game.player} cannot move!'
+    #     gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
+    #
+    #     return HttpResponse(json.dumps(gameDict))
+    #
+    # build = game.makeRandomBuild(move[1])
+    #
+    # if game.isDone():
+    #     gameDict = game.__dict__.copy()
+    #
+    #     gameDict['result'] = f'{game.player} wins!'
+    #     gameDict['reason'] = f'{game.player} reached the top floor!'
+    #     gameDict['winner'] = game.player.lower()
+    #
+    #     return HttpResponse(json.dumps(gameDict))
+    #
+    # game.nextTurn()
+    # game.setPlayer()
+    #
+    # gameDict = game.__dict__.copy()
+    # gameDict['build'] = f'AI builds on {build}'
+    # gameDict['move'] = f'AI makes move {move[0]} -> {move[1]}'
+    # if game.isDone():
+    #     gameDict['result'] = f'{game.player} wins!'
+    #     gameDict['reason'] = f'{game.player} reached the top floor!'
+    #     gameDict['winner'] = game.player.lower()
+    #
+    # if not game.canRedMove():
+    #     gameDict['result'] = f'{game.player} loses!'
+    #     gameDict['reason'] = f'{game.player} cannot move!'
+    #     gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
+    #
+    #     return HttpResponse(json.dumps(gameDict))
 
-        return HttpResponse(json.dumps(gameDict))
-
-    build = game.makeRandomBuild(move[1])
-
-    if game.isDone():
-        gameDict = game.__dict__.copy()
-
-        gameDict['result'] = f'{game.player} wins!'
-        gameDict['reason'] = f'{game.player} reached the top floor!'
-        gameDict['winner'] = game.player.lower()
-
-        return HttpResponse(json.dumps(gameDict))
-
-    game.nextTurn()
-    game.setPlayer()
-
-    gameDict = game.__dict__.copy()
-    gameDict['build'] = f'AI builds on {build}'
-    gameDict['move'] = f'AI makes move {move[0]} -> {move[1]}'
-    if game.isDone():
-        gameDict['result'] = f'{game.player} wins!'
-        gameDict['reason'] = f'{game.player} reached the top floor!'
-        gameDict['winner'] = game.player.lower()
-
-    if not game.canRedMove():
-        gameDict['result'] = f'{game.player} loses!'
-        gameDict['reason'] = f'{game.player} cannot move!'
-        gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
-
-        return HttpResponse(json.dumps(gameDict))
-
-    return HttpResponse(json.dumps(gameDict))
+    return HttpResponse(json.dumps(game.__dict__))
 
 
 def init(request):
-    global game
-    game = Santorini()
-    return game.stateToHttpResponse()
-
-
-def setAlgorithmAI(request):
     algorithm = request.GET['alg']
 
+    global game
+    game = Santorini()
     game.setAlgorithmAI(algorithm)
-    return True
+
+    return game.stateToHttpResponse()
