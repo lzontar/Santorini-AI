@@ -31,7 +31,7 @@ class Santorini():
             self.wipe()
         else:
             self.board = board
-            self.pawns = self.get_pawns()
+            self.pawns = self.find_pawns()
         self.cols = ['Red', 'Blue']
         self.turn = turn
         self.algAI = 'Random'
@@ -188,9 +188,12 @@ class Santorini():
         ### Currently, random starting positions are implemented.
         self.board = setupBlankBoard()
         pawns = {
-            'R' : [('B', 2), ('D', 4)],
-            'B' : [('B', 4), ('D', 2)]
+            'R1': ('B', 2),
+            'R2': ('D', 4),
+            'B1': ('B', 4),
+            'B2': ('D', 2)
         }
+
         # for i in range(2):
         #     for pawn in ['B', 'R']:
         #         num = random.choice([1, 2, 3, 4, 5])
@@ -200,10 +203,11 @@ class Santorini():
         #             let = random.choice(['A', 'B', 'C', 'D', 'E'])
         #         self.board[let][num] = (0, f'{pawn}{i + 1}')
         #         pawns[pawn].append((let, num))
-        #
-        for player in pawns.keys():
-            for ix, pawn in enumerate(pawns[player]):
-                self.board[pawn[0]][pawn[1]] = (0, f'{player}{ix + 1}')
+
+        for pawn_name in pawns.keys():
+            pawn = pawns[pawn_name]
+            self.board[pawn[0]][pawn[1]] = (0, pawn_name)
+
         self.pawns = pawns
 
     def drawBoard(self):
@@ -236,7 +240,7 @@ class Santorini():
                     return True
         return False
 
-    def get_pawns(self):
+    def find_pawns(self):
         """
         ##returns the current location of pawns --
         used to save into self.pawns (which is not currently used)
@@ -248,6 +252,9 @@ class Santorini():
                 if self.board[let][num][1]:
                     nd[self.board[let][num][1]].append((let, num))
         return nd
+
+    def get_pawns(self):
+        return self.pawns
 
 
     def setPlayer(self):
@@ -599,7 +606,7 @@ class Santorini():
             return winning_state
         pawn_height_value = 0
 
-        pawns = self.get_pawns()
+        pawns = self.find_pawns()
         pawns = [space for list in list(pawns.values()) for space in list]
         for space in pawns:
             let, num = space[0], space[1]
@@ -636,7 +643,7 @@ class Santorini():
             return winning_state
         pawn_height_value = 0
 
-        pawns = self.get_pawns()
+        pawns = self.find_pawns()
         pawns = [space for list in list(pawns.values()) for space in list]
         for space in pawns:
             temp_value = 0
