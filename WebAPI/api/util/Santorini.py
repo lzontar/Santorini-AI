@@ -570,6 +570,7 @@ class Santorini():
         """
         emptyMemoization()
         best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        self.set_state(state=best_state['State'])
         print(best_state)
         """
         move = strategy['Move']
@@ -584,9 +585,6 @@ class Santorini():
         self.build(build)
         print(f'AI builds on {build}')
         """
-        self.board = best_state.board
-        self.nextTurn()
-        self.setPlayer()
 
 
         self.drawBoard()
@@ -598,8 +596,8 @@ class Santorini():
         I suggest a good practice of changing the function call inside of here, instead of inside
         the Santorini initialization function.
         """
-        #self.value = self.pawn_height_proximity_value()
-        self.value = self.dummy_heuristic()
+        self.value = self.pawn_height_proximity_value()
+        # self.value = self.dummy_heuristic()
 
     def pawn_height_proximity_value(self):
         """
@@ -702,3 +700,10 @@ class Santorini():
 
     def setAlgorithmAI(self, algorithm):
         self.algAI = algorithm
+
+    def get_board(self):
+        return self.board
+
+    def set_state(self, state):
+        self.board = state.get_board()
+        self.pawns = state.get_pawns()

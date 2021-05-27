@@ -12,8 +12,8 @@ def emptyMemoization():
 
 
 def MinMax(state, depth, start_depth, alpha, beta):
-    if json.dumps(str(state['State'].__dict__.copy())) in MEMOIZATION.keys():
-        return MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))]
+    # if json.dumps(str(state['State'].__dict__.copy())) in MEMOIZATION.keys():
+    #     return MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))]
 
     player = state['State'].player
     sign = __MAXMINDICT__[player]
@@ -28,7 +28,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
         observed_value = observed_future['State'].value # Extract the value, returned from the future state
         if abs(goal - observed_value) < abs(goal - best_val): #if this state gets us closer to our desired goal (victory), do...
             best_val = observed_value
-            best_state = observed_future
+            best_state = child
 
         ###===ALPHA BETA PRUNING
         if sign > 0:
@@ -40,11 +40,13 @@ def MinMax(state, depth, start_depth, alpha, beta):
             if beta <= alpha:
                 break
 
-    if depth != start_depth:
-        if json.dumps(str(state['State'].__dict__.copy())) not in MEMOIZATION.keys():
-            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
-        return best_state
-    else:
-        if json.dumps(str(state['State'].__dict__.copy())) in MEMOIZATION.keys():
-            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
-        return best_state
+    return best_state
+
+    # if depth != start_depth:
+    #     if json.dumps(str(state['State'].__dict__.copy())) not in MEMOIZATION.keys():
+    #         MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
+    #     return best_state
+    # else:
+    #     if json.dumps(str(state['State'].__dict__.copy())) in MEMOIZATION.keys():
+    #         MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
+    #     return best_state
