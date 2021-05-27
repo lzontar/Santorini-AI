@@ -1,5 +1,6 @@
 import json
 import random
+import time
 import warnings
 import random
 import copy
@@ -7,7 +8,7 @@ from sys import maxsize
 warnings.simplefilter("always")
 
 #The logic for the minimax algorithm is in a seperate file.
-from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization
+from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix
 
 """
 Red is maximizer
@@ -18,7 +19,7 @@ Starting Board states are determined at random.
 
 from django.http import HttpResponse
 
-from .lib import setupBlankBoard, BlankPawnDict, LETTERS, NUMBERS, players
+from .lib import setupBlankBoard, BlankPawnDict, LETTERS, NUMBERS, NUM_TO_LET, LET_TO_NUM, players
 
 
 class Santorini():
@@ -436,18 +437,19 @@ class Santorini():
         Gets all moves available to both pawns of the current player
         and outputs them in no particular order.
         """
-        pawn = self.player[0]
+        player = self.player[0]
         moves = []
         if not self.isDone():
 
+            for pawn_name in self.pawns.keys():
+                if pawn_name.startswith(player):
 
-            for row in self.board:
-                for col in self.board[row]:
-                    if self.board[row][col][1] is not None and  self.board[row][col][1].startswith(pawn):
-                        if verbose: print(f'Pawn on {(row, col)} can move to:')
-                        dests = self.getAvailableMoves((row, col))
-                        if verbose:print(dests)
-                        moves += [((row, col), dest) for dest in dests]
+                    if verbose:
+                        print(f'Pawn on {self.pawns[pawn_name]} can move to:')
+                    dests = self.getAvailableMoves(self.pawns[pawn_name])
+                    if verbose:
+                        print(dests)
+                    moves += [(self.pawns[pawn_name], dest) for dest in dests]
         return moves
 
     def getAvailableMoves(self, _from):
@@ -461,11 +463,37 @@ class Santorini():
             warnings.warn('No pawn on this space')
             return False
         dests = []
-        for row in self.board:
-            for col in self.board[row]:
-                if self.canMove(_from, (row,col), "ignore"):
-                    dests.append((row, col))
+        for potential in self.getAdjacentFields(_from):
+            if self.canMove(_from, potential, "ignore"):
+                dests.append(potential)
+
         return dests
+
+    def getAdjacentFields(self, _from):
+        _iy = list(LET_TO_NUM.keys()).index(_from[0])
+        _ix = _from[1]
+
+        _iys = [_iy]
+        _ixs = [_ix]
+
+        if _iy - 1 >= 0:
+            _iys.append(_iy - 1)
+        if _iy + 1 <= 4:
+            _iys.append(_iy + 1)
+        if _ix - 1 >= 1:
+            _ixs.append(_ix - 1)
+        if _iy + 1 <= 5:
+            _ixs.append(_ix + 1)
+
+        adj_fields = []
+        for let in _iys:
+            for num in _ixs:
+                if let != _iy or num != _ix:
+                    adj_fields.append(
+                        (NUM_TO_LET[str(let)], num)
+                    )
+
+        return adj_fields
 
     def getAvailableBuilds(self, _to):
         """
@@ -476,10 +504,9 @@ class Santorini():
         """
         dests = []
         if not self.isDone():
-            for row in self.board:
-                for col in self.board[row]:
-                    if self.canBuild((row, col), _to, filter="ignore"):
-                        dests.append((row, col))
+            for potential in self.getAdjacentFields(_to):
+                if self.canBuild(potential, _to, filter="ignore"):
+                    dests.append(potential)
         return dests
 
 
@@ -554,9 +581,8 @@ class Santorini():
 
     ## TODO: It's working quite slow, we should consider implementing alpha-beta pruning.
 
-    def minmaxer_turn(self, depth=2):
+    def minmaxer_turn(self, depth=3):
         """
-
         This function is a standin for the doAITurn() function that handles the automatic gameplay of the AI (as said
         method is implemented for seperate move and build functions). The **DEPTH** parameter determines the size of tree
         search, passed to the Minimax algorithm in minmax.py.
@@ -569,8 +595,12 @@ class Santorini():
         Outcome 2 = win
         Outcome 3 = loss
         """
+
+        time0 = time.time()
         emptyMemoization()
         best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        time1 = time.time()
+        print(f'MinMax iter executed in: {round(time1 - time0, 2)}s')
         self.set_state(state=best_state['State'])
         print(best_state)
         """
@@ -618,7 +648,7 @@ class Santorini():
             space = pawns[pawn]
             let, num = space[0], space[1]
             pawn = self.board[let][num][1]
-            if not pawn: warnings.warn('There should be a pawn here.') # should be redundant
+            if not pawn: warnings.warn('There should be a pawn here.')  # should be redundant
             temp_value = 0
             temp_value += self.board[let][num][0] #add the current height of the pawn
             for move in self.getAllCurrentAvailableMoves():
@@ -710,3 +740,6 @@ class Santorini():
     def set_state(self, state):
         self.board = state.get_board()
         self.pawns = state.get_pawns()
+
+    def get_player(self):
+        return self.player

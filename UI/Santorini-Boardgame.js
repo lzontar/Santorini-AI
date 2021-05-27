@@ -316,7 +316,7 @@ function init(alg) {
 
     selectedFigure = null;
     if (alg == null)
-        alg = 'Random'
+        alg = '2143'
 
     document.getElementById("dropdownMenuButtonAI").innerText = alg
 
