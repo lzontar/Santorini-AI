@@ -16,8 +16,7 @@ def dummy_heuristic(state):
     pawn_height_value = 0
 
     pawns = state.find_pawns()
-    pawns = [space for l in list(pawns.values()) for space in l]
-    for space in pawns:
+    for space in pawns.values():
         temp_value = 0
         let, num = space[0], space[1]
         height = state.board[let][num][0]
@@ -29,9 +28,9 @@ def dummy_heuristic(state):
     return pawn_height_value
 
 
-class Dummy_Minmaxer(Santorini):
+class LowIsGood(Santorini):
 
     def evaluate_current_board_state(self):
-        self.algAI = 'Dummy'
+        self.algAI = 'LowIsGood'
         self.value = dummy_heuristic(self)
 

@@ -9,7 +9,7 @@ warnings.simplefilter("always")
 
 #The logic for the minimax algorithm is in a seperate file.
 from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix
-from minmaxer_names import ALL_MINMAXERS
+from .minmaxer_names import ALL_MINMAXERS
 
 """
 Red is maximizer
@@ -76,6 +76,7 @@ class Santorini():
             print('WELCOME TO SANTORINI AI!')
             self.drawBoard()
         players = {}
+        print(mode)
         if not mode:
             mode = input('Please enter \'B\' to play as blue, \'W\' to play as white, '
                          '\'AI\' to watch AI play and \'WB\' to control both players! ')
@@ -108,7 +109,7 @@ class Santorini():
             outcome = self.doAITurn(self.makeHighestMove, self.makeRandomBuild)
             if outcome != 1:
                 return self.process_outcome(outcome)
-        elif players[self.player[0]] in ALL_MINMAXERS:
+        elif players[self.player[0]] in ALL_MINMAXERS+['RandomMinmaxer']:
             outcome = self.minmaxer_turn()
             if outcome != 1:
                 return self.process_outcome(outcome)
@@ -585,7 +586,7 @@ class Santorini():
 
     ## TODO: It's working quite slow, we should consider implementing alpha-beta pruning.
 
-    def minmaxer_turn(self, depth=3):
+    def minmaxer_turn(self, depth=2):
         """
 
         This function is a standin for the doAITurn() function that handles the automatic gameplay of the AI (as said

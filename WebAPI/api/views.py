@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 
 from .util.Santorini import Santorini
-from .util.Minmaxers.Dummy_Minmaxer import Dummy_Minmaxer
+from .util.Minmaxers.LowIsGood import LowIsGood
 from .util.Minmaxers.Highriser import Highriser
 from .util.lib import mapperAlpha
 
@@ -59,8 +59,8 @@ def build(request):
     return HttpResponse(json.dumps(gameDict))
 
 def get_game(alg):
-    if alg == 'Dummy':
-        return Dummy_Minmaxer()
+    if alg == 'LowIsGood':
+        return LowIsGood()
     elif alg == 'Highriser':
         return Highriser()
     return Santorini()

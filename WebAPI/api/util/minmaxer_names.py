@@ -1,3 +1,6 @@
 import os
+from pathlib import Path
 
-ALL_MINMAXERS =  [i.split('.')[0] for i in os.listdir('./Minmaxers') if i[0] != '_']
+from pathlib import Path
+p = Path(__file__)
+ALL_MINMAXERS =  [i.split('.')[0] for i in os.listdir(str(p.parent.absolute()) + '/Minmaxers') if i[0] != '_']

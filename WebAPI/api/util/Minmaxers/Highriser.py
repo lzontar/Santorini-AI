@@ -19,8 +19,7 @@ def pawn_height_proximity_value(state):
     pawn_height_value = 0
 
     pawns = state.find_pawns()
-    pawns = [space for l in list(pawns.values()) for space in l]
-    for space in pawns:
+    for space in pawns.values():
         let, num = space[0], space[1]
         pawn = state.board[let][num][1]
         if not pawn: warnings.warn('There should be a pawn here.')  # should be redundant
