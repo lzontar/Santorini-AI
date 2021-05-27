@@ -9,6 +9,7 @@ warnings.simplefilter("always")
 
 #The logic for the minimax algorithm is in a seperate file.
 from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix
+from .minmaxer_names import ALL_MINMAXERS
 
 """
 Red is maximizer
@@ -21,6 +22,8 @@ from django.http import HttpResponse
 
 from .lib import setupBlankBoard, BlankPawnDict, LETTERS, NUMBERS, NUM_TO_LET, LET_TO_NUM, players
 
+def zeroHeuristic(state):
+    return 0
 
 class Santorini():
     def __init__(self, new=True, board=None, turn=0):
@@ -42,7 +45,8 @@ class Santorini():
         self.evaluate_current_board_state() ## Function assigns heuristic value to current board state.
                                             ## See this function to see which heuristic is currently in use.
 
-
+    def BoardState(self, new=True, board=None, turn=0):
+        return type(self)(new=new, board=board, turn=turn)
 
     #======================GAMEPLAY &  HELPERS=================================#
     # Only functions that are related to core Santorini gameplay,
@@ -72,6 +76,7 @@ class Santorini():
             print('WELCOME TO SANTORINI AI!')
             self.drawBoard()
         players = {}
+        print(mode)
         if not mode:
             mode = input('Please enter \'B\' to play as blue, \'W\' to play as white, '
                          '\'AI\' to watch AI play and \'WB\' to control both players! ')
@@ -104,7 +109,7 @@ class Santorini():
             outcome = self.doAITurn(self.makeHighestMove, self.makeRandomBuild)
             if outcome != 1:
                 return self.process_outcome(outcome)
-        elif players[self.player[0]] == 'Minmaxer':
+        elif players[self.player[0]] in ALL_MINMAXERS+['RandomMinmaxer']:
             outcome = self.minmaxer_turn()
             if outcome != 1:
                 return self.process_outcome(outcome)
@@ -581,8 +586,9 @@ class Santorini():
 
     ## TODO: It's working quite slow, we should consider implementing alpha-beta pruning.
 
-    def minmaxer_turn(self, depth=3):
+    def minmaxer_turn(self, depth=2):
         """
+
         This function is a standin for the doAITurn() function that handles the automatic gameplay of the AI (as said
         method is implemented for seperate move and build functions). The **DEPTH** parameter determines the size of tree
         search, passed to the Minimax algorithm in minmax.py.
@@ -627,74 +633,9 @@ class Santorini():
         I suggest a good practice of changing the function call inside of here, instead of inside
         the Santorini initialization function.
         """
-        # self.value = self.pawn_height_proximity_value()
-        self.value = self.dummy_heuristic()
+        self.value = zeroHeuristic(self)
 
-    def pawn_height_proximity_value(self):
-        """
-        Heuristic function that evaluates game states.
-        Favors situations where agent is standing as high as possible, surrounded
-        by buildings that are as high as possible, while the oponnent is as low as possible.
-
-        """
-        winning_state = BIG_NUMBER*__MAXMINDICT__[self.player]
-        if self.isDone():
-            return winning_state
-        pawn_height_value = 0
-
-        pawns = self.get_pawns()
-
-        for pawn in pawns.keys():
-            space = pawns[pawn]
-            let, num = space[0], space[1]
-            pawn = self.board[let][num][1]
-            if not pawn: warnings.warn('There should be a pawn here.')  # should be redundant
-            temp_value = 0
-            temp_value += self.board[let][num][0] #add the current height of the pawn
-            for move in self.getAllCurrentAvailableMoves():
-                if move[0] != space: continue #this should be redundant
-                dest = move[1]
-                if not self.areAdjacent(space, dest): continue #this should be redundant
-                height = self.board[dest[0]][dest[1]][0] #log the height of the adjecent space
-                if height == 4: continue # should be redundant
-                if height == 3: ## dodaj - ce si na 2. nadstropju
-                    if pawn == self.player[0]:
-                        return winning_state ## it is the current player's turn and an adjecent 3-space is open.
-                    else: temp_value += height*1.5 #the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
-                elif height >0: temp_value += height
-                else: continue # consider adding some reward here as well.
-            if pawn != self.player[0]:
-                temp_value *= -1
-            pawn_height_value += temp_value
-        return pawn_height_value
-
-    def dummy_heuristic(self):
-        """
-        Heuristic function that evaluates game states.
-        Favors situations where agent is standing as high as possible, surrounded
-        by buildings that are as high as possible, while the oponnent is as low as possible.
-
-        """
-        winning_state = BIG_NUMBER * __MAXMINDICT__[self.player]
-        if self.isDone():
-            return winning_state
-        pawn_height_value = 0
-
-        pawns = self.get_pawns()
-
-        for pawn in pawns.keys():
-            space = pawns[pawn]
-            temp_value = 0
-            let, num = space[0], space[1]
-            height = self.board[let][num][0]
-            temp_value -= height
-            pawn = self.board[let][num][1]
-            if pawn != self.player[0]:
-                temp_value *= -1
-            pawn_height_value += temp_value
-        return pawn_height_value
-
-        #Used in minmax to create children of current board state.
+    #Used in minmax to create children of current board state.
     def make_children(self):
         self.children = self.get_all_next_states()
 
@@ -702,11 +643,11 @@ class Santorini():
         states = []
         if not self.isDone():
             for move in self.getAllCurrentAvailableMoves():
-                s = Santorini(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn))
+                s = self.BoardState(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn))
                 s.move(move[0], move[1])
                 if not s.isDone():
                     for build in s.getAvailableBuilds(move[1]):
-                        ss = Santorini(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
+                        ss = self.BoardState(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
                         ss.build(build)
                         ss.nextTurn()
                         ss.setPlayer()
