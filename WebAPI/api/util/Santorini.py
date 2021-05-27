@@ -32,7 +32,7 @@ def getDist(A, B):
 
 
 class Santorini():
-    def __init__(self, new=True, board=None, turn=0):
+    def __init__(self, new=True, board=None, turn=0, move=None, build=None):
         if new:
             ##Ensures that the board resets only if initializing new class
             ##(More santorini objects are initialized in the tree search for minmax)
@@ -48,11 +48,17 @@ class Santorini():
         self.player = self.cols[self.turn%2]
         self.value = 0 #Overriden by heuristic function, used in minmax.
         self.children = []
+
+        if move is not None:
+            self.move(move[0], move[1])
+        if build is not None:
+            self.build(build)
+
         self.evaluate_current_board_state() ## Function assigns heuristic value to current board state.
                                             ## See this function to see which heuristic is currently in use.
 
-    def BoardState(self, new=True, board=None, turn=0):
-        return type(self)(new=new, board=board, turn=turn)
+    def BoardState(self, new=True, board=None, turn=0, move=None, build=None):
+        return type(self)(new=new, board=board, turn=turn, move=move, build=build)
 
     #======================GAMEPLAY &  HELPERS=================================#
     # Only functions that are related to core Santorini gameplay,
@@ -651,12 +657,12 @@ class Santorini():
         states = []
         if not self.isDone():
             for move in self.getAllCurrentAvailableMoves():
-                s = self.BoardState(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn))
-                s.move(move[0], move[1])
+                s = self.BoardState(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn), move=move)
+                # s.move(move[0], move[1])
                 if not s.isDone():
                     for build in s.getAvailableBuilds(move[1]):
-                        ss = self.BoardState(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn))
-                        ss.build(build)
+                        ss = self.BoardState(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn), build=build)
+                        # ss.build(build)
                         ss.nextTurn()
                         ss.setPlayer()
                         assert ss.player != s.player

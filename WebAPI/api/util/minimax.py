@@ -60,6 +60,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
             beta = min(beta, observed_value)
             if beta <= alpha:
                 continue
+
     if json.dumps(state_to_dict(state['State'])) not in MEMOIZATION.keys():
         MEMOIZATION[json.dumps(state_to_dict(state['State']))] = best_state
 
