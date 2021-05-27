@@ -187,16 +187,23 @@ class Santorini():
         ### Different starting positions can be achieved by replacing the indices in wipe().
         ### Currently, random starting positions are implemented.
         self.board = setupBlankBoard()
-        pawns = {'R' : [], 'B' : []}
-        for i in range(2):
-            for pawn in ['B', 'R']:
-                num = random.choice([1, 2, 3, 4, 5])
-                let = random.choice(['A', 'B', 'C', 'D', 'E'])
-                while self.board[let][num][1]:
-                    num = random.choice([1, 2, 3, 4, 5])
-                    let = random.choice(['A', 'B', 'C', 'D', 'E'])
-                self.board[let][num] = (0, f'{pawn}{i + 1}')
-                pawns[pawn].append((let, num))
+        pawns = {
+            'R' : [('B', 2), ('D', 4)],
+            'B' : [('B', 4), ('D', 2)]
+        }
+        # for i in range(2):
+        #     for pawn in ['B', 'R']:
+        #         num = random.choice([1, 2, 3, 4, 5])
+        #         let = random.choice(['A', 'B', 'C', 'D', 'E'])
+        #         while self.board[let][num][1]:
+        #             num = random.choice([1, 2, 3, 4, 5])
+        #             let = random.choice(['A', 'B', 'C', 'D', 'E'])
+        #         self.board[let][num] = (0, f'{pawn}{i + 1}')
+        #         pawns[pawn].append((let, num))
+        #
+        for player in pawns.keys():
+            for ix, pawn in enumerate(pawns[player]):
+                self.board[pawn[0]][pawn[1]] = (0, f'{player}{ix + 1}')
         self.pawns = pawns
 
     def drawBoard(self):
