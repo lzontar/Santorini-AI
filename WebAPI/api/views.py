@@ -19,6 +19,7 @@ def move(request):
     if game.isDone():
         return win()
 
+    gameDict['children'] = []
     return HttpResponse(json.dumps(gameDict))
 
 

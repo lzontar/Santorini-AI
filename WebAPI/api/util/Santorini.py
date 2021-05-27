@@ -642,7 +642,7 @@ class Santorini():
             temp_value = 0
             let, num = space[0], space[1]
             height = self.board[let][num][0]
-            temp_value += height
+            temp_value -= height
             pawn = self.board[let][num][1]
             if pawn != self.player[0]:
                 temp_value *= -1
