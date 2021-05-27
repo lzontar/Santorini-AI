@@ -6,6 +6,7 @@ from .util.Santorini import Santorini
 from .util.Minmaxers.LowIsGood import LowIsGood
 from .util.Minmaxers.Highriser import Highriser
 from .util.Minmaxers.Highriser2 import Highriser2
+from .util.Minmaxers.HelpInvoker import HelpInvoker
 from .util.lib import mapperAlpha
 
 
@@ -67,6 +68,8 @@ def get_game(alg):
         return Highriser()
     elif alg == 'Highriser2':
         return Highriser2()
+    elif alg == 'HelpInvoker':
+        return HelpInvoker()
     return Santorini()
 
 def init(request):

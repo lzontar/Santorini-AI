@@ -27,11 +27,11 @@ def MinMax(state, depth, start_depth, alpha, beta):
     #    return MEMOIZATION[json.dumps(state_to_dict(state['State']))]
     player = state['State'].player
     sign = __MAXMINDICT__[player]
-    if (depth == 0) or (abs(state['State'].value) >= BIG_NUMBER) or state[
-        'State'].isDone():  # if victory is achieved in this state or we've reached our depth limit, do...
-        return state['State'].value, state
+    goal = BIG_NUMBER * sign
+    if (depth == 0) or (abs(state['State'].value) >= BIG_NUMBER) or state['State'].isDone():  # if victory is achieved in this state or we've reached our depth limit, do...
+        return state['State'].value*sign, state
 
-    goal = BIG_NUMBER * sign  # this is the state value we want to achieve
+      # this is the state value we want to achieve
     best_val = goal * -1  # start at the smallest possible value
     best_state = None
 
@@ -55,11 +55,11 @@ def MinMax(state, depth, start_depth, alpha, beta):
         if sign > 0:
             alpha = max(alpha, observed_value)
             if beta <= alpha:
-                break
+                continue
         else:
             beta = min(beta, observed_value)
             if beta <= alpha:
-                break
+                continue
     if json.dumps(state_to_dict(state['State'])) not in MEMOIZATION.keys():
         MEMOIZATION[json.dumps(state_to_dict(state['State']))] = best_state
 

@@ -25,6 +25,12 @@ from .lib import setupBlankBoard, BlankPawnDict, LETTERS, NUMBERS, NUM_TO_LET, L
 def zeroHeuristic(state):
     return 0
 
+def getDist(A, B):
+    A = [str(aa) for aa in A]
+    B = [str(bb) for bb in B]
+    return max(abs(ord(A[0]) - ord(B[0])), abs(ord(A[1]) - ord(B[1])))
+
+
 class Santorini():
     def __init__(self, new=True, board=None, turn=0):
         if new:
@@ -253,7 +259,7 @@ class Santorini():
         used to save into self.pawns (which is not currently used)
         :return: dictionary of locations of pawns
         """
-        nd = {'R1' : None, 'R2': None, 'B1': None, 'B2': None}
+        nd = {'B1' : None, 'B2': None, 'R1': None, 'R2': None}
         for let in LETTERS:
             for num in NUMBERS:
                 if self.board[let][num][1]:
@@ -365,7 +371,7 @@ class Santorini():
         if not self.board[tuprc[0]][tuprc[1]][1]: return False
         return True
 
-    def canMove(self, _from, _to, filter="always"):
+    def canMove(self, _from, _to, filter="always", verbose=False):
         """
         General method that uses several other validation methods to see if a proposed move is valid.
         filter should be set to "ignore" in automated functions to prevent warning spam on the console.
@@ -376,32 +382,32 @@ class Santorini():
 
         ##check if spaces are adjacent:
         if not self.check_lets(_from[0]) or not self.check_lets(_to[0]):
-            warnings.warn('Valid column indices are A-E.')
+            if verbose: warnings.warn('Valid column indices are A-E.')
             return False
         if not self.check_nums(_from[1]) or not self.check_nums(_to[1]):
-            warnings.warn('Valid row indices are 1-5.')
+            if verbose: warnings.warn('Valid row indices are 1-5.')
             return False
         if self.board[_from[0]][_from[1]][1] is None:
-            warnings.warn('No pawn on specified space')
+            if verbose: warnings.warn('No pawn on specified space')
             return False
         elif not self.board[_from[0]][_from[1]][1].startswith(self.player[0]):
-            warnings.warn('It is not this player\'s turn!')
+            if verbose: warnings.warn('It is not this player\'s turn!')
             return False
         if not self.areAdjacent(_from, _to):
-            warnings.warn(f'Spaces are not adjecent')
+            if verbose: warnings.warn(f'Spaces are not adjecent')
             return False
         ##check if goal space is full
         if self.spaceTaken(_to):
-            warnings.warn('target space already full')
+            if verbose: warnings.warn('target space already full')
             return False
         ##check if the goal space is at most 1 higher than the start space
         if self.getAltitudeDiff(_from, _to) > 1:
-            warnings.warn('Target space too high!')
+            if verbose: warnings.warn('Target space too high!')
             return False
 
         ##check if goal space doesn't have dome:
         if self.hasRoof(_to):
-            warnings.warn('Target space already has a roof')
+            if verbose: warnings.warn('Target space already has a roof')
             return False
         return True
 
@@ -658,6 +664,7 @@ class Santorini():
                         states.append({'State' : ss, 'Move' : move, 'Build' : build})
                 else:
                     states.append({'State' : s, 'Move' : move, 'Build' : None})
+                    print('Winning Child Appended')
                     continue
             return states
         else: return [{'State' : self, 'Move' : ((None, None), (None, None)), 'Build' : None}]
