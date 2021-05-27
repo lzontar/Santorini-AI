@@ -50,10 +50,11 @@ def build(request):
         return win()
 
     game.play(mode=[None, game.algAI], cmd=False)
-    game.setPlayer()
 
     if game.isDone():
         return win()
+
+    game.setPlayer()
 
     gameDict = game.__dict__.copy()
     gameDict['children'] = []
