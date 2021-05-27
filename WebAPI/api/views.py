@@ -22,6 +22,7 @@ def move(request):
         gameDict['reason'] = f'{game.player} reached the top floor!'
         gameDict['winner'] = game.player.lower()
 
+    gameDict['children'] = []
     return HttpResponse(json.dumps(gameDict))
 
 
@@ -79,8 +80,9 @@ def build(request):
     #     gameDict['winner'] = game.cols[(game.turn + 1) % 2].lower()
     #
     #     return HttpResponse(json.dumps(gameDict))
-
-    return HttpResponse(json.dumps(game.__dict__))
+    gameDict = game.__dict__.copy()
+    gameDict['children'] = []
+    return HttpResponse(json.dumps(gameDict))
 
 
 def init(request):

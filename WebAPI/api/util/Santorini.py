@@ -557,7 +557,6 @@ class Santorini():
         emptyMemoization()
         _, strategy = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
         print(strategy)
-        # For some reason tu pride do ('Start', None) WTF
         move = strategy['Move']
         if not move:
             return 2
