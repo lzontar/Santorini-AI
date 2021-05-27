@@ -3,6 +3,8 @@ import json
 from django.http import HttpResponse
 
 from .util.Santorini import Santorini
+from .util.Minmaxers.Dummy_Minmaxer import Dummy_Minmaxer
+from .util.Minmaxers.Highriser import Highriser
 from .util.lib import mapperAlpha
 
 
@@ -56,12 +58,18 @@ def build(request):
     gameDict['children'] = []
     return HttpResponse(json.dumps(gameDict))
 
+def get_game(alg):
+    if alg == 'Dummy':
+        return Dummy_Minmaxer()
+    elif alg == 'Highriser':
+        return Highriser()
+    return Santorini()
 
 def init(request):
     algorithm = request.GET['alg']
 
     global game
-    game = Santorini()
+    game = get_game(algorithm)
     game.setAlgorithmAI(algorithm)
 
     return game.stateToHttpResponse()
