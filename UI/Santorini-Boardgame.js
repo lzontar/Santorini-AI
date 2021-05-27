@@ -228,7 +228,7 @@ function drawCanvas(res) {
                 canvas.appendChild(circle);
             }
 
-                        // Draw letter
+            // Draw letter
             var iAnnotation = document.createElementNS(svgns, 'text');
             iAnnotation.setAttributeNS(null, 'x', xStartRect + 5);
             iAnnotation.setAttributeNS(null, 'y', yStartRect + rectSide - 5);

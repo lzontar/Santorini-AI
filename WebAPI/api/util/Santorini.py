@@ -172,13 +172,14 @@ class Santorini():
         """
         takes _to and _from as a (let, num) tuple
         """
-        color = self.board[_from[0]][_from[1]][1]
+        pawn = self.board[_from[0]][_from[1]][1]
         if not self.canMove(_from, _to):
             self.drawBoard()
             print(_from, _to)
             raise Exception ('Can\'t move here')
         self.board[_from[0]][_from[1]] = (self.board[_from[0]][_from[1]][0], None)
-        self.board[_to[0]][_to[1]] = (self.board[_to[0]][_to[1]][0], color)
+        self.board[_to[0]][_to[1]] = (self.board[_to[0]][_to[1]][0], pawn)
+        self.pawns[pawn] = _to
 
 
 
@@ -246,11 +247,11 @@ class Santorini():
         used to save into self.pawns (which is not currently used)
         :return: dictionary of locations of pawns
         """
-        nd = {'R1' : [], 'R2': [], 'B1': [], 'B2': []}
+        nd = {'R1' : None, 'R2': None, 'B1': None, 'B2': None}
         for let in LETTERS:
             for num in NUMBERS:
                 if self.board[let][num][1]:
-                    nd[self.board[let][num][1]].append((let, num))
+                    nd[self.board[let][num][1]] = (let, num)
         return nd
 
     def get_pawns(self):
@@ -596,8 +597,8 @@ class Santorini():
         I suggest a good practice of changing the function call inside of here, instead of inside
         the Santorini initialization function.
         """
-        self.value = self.pawn_height_proximity_value()
-        # self.value = self.dummy_heuristic()
+        # self.value = self.pawn_height_proximity_value()
+        self.value = self.dummy_heuristic()
 
     def pawn_height_proximity_value(self):
         """
@@ -611,9 +612,10 @@ class Santorini():
             return winning_state
         pawn_height_value = 0
 
-        pawns = self.find_pawns()
-        pawns = [space for list in list(pawns.values()) for space in list]
-        for space in pawns:
+        pawns = self.get_pawns()
+
+        for pawn in pawns.keys():
+            space = pawns[pawn]
             let, num = space[0], space[1]
             pawn = self.board[let][num][1]
             if not pawn: warnings.warn('There should be a pawn here.') # should be redundant
@@ -648,9 +650,10 @@ class Santorini():
             return winning_state
         pawn_height_value = 0
 
-        pawns = self.find_pawns()
-        pawns = [space for list in list(pawns.values()) for space in list]
-        for space in pawns:
+        pawns = self.get_pawns()
+
+        for pawn in pawns.keys():
+            space = pawns[pawn]
             temp_value = 0
             let, num = space[0], space[1]
             height = self.board[let][num][0]
