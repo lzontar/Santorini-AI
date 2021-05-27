@@ -562,8 +562,9 @@ class Santorini():
         Outcome 3 = loss
         """
         emptyMemoization()
-        _, strategy = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
-        print(strategy)
+        best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        print(best_state)
+        """
         move = strategy['Move']
         if not move:
             return 2
@@ -575,6 +576,12 @@ class Santorini():
         build = strategy['Build']
         self.build(build)
         print(f'AI builds on {build}')
+        """
+        self.board = best_state.board
+        self.nextTurn()
+        self.setPlayer()
+
+
         self.drawBoard()
         return 1
 

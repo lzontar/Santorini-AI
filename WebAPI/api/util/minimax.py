@@ -18,21 +18,17 @@ def MinMax(state, depth, start_depth, alpha, beta):
     player = state['State'].player
     sign = __MAXMINDICT__[player]
     if (depth==0) or (abs(state['State'].value) >= BIG_NUMBER) or state['State'].isDone(): #if victory is achieved in this state or we've reached our depth limit, do...
-        return state, state
+        return state
     goal = BIG_NUMBER * sign #this is the state value we want to achieve
     best_val = goal * -1 #start at the smallest possible value
     best_state = None
-    parent, final_parent=None, None
     state['State'].make_children()
     for child in state['State'].children:
-        observed_future, final_parent = MinMax(child, depth-1, start_depth, alpha, beta)
+        observed_future = MinMax(child, depth-1, start_depth, alpha, beta)
         observed_value = observed_future['State'].value # Extract the value, returned from the future state
-
         if abs(goal - observed_value) < abs(goal - best_val): #if this state gets us closer to our desired goal (victory), do...
             best_val = observed_value
             best_state = observed_future
-            if depth == start_depth-1:
-                parent = state
 
         ###===ALPHA BETA PRUNING
         if sign > 0:
@@ -46,9 +42,9 @@ def MinMax(state, depth, start_depth, alpha, beta):
 
     if depth != start_depth:
         if json.dumps(str(state['State'].__dict__.copy())) not in MEMOIZATION.keys():
-            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state, parent)
-        return best_state, parent
+            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
+        return best_state
     else:
         if json.dumps(str(state['State'].__dict__.copy())) in MEMOIZATION.keys():
-            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state, final_parent)
-        return best_state, final_parent
+            MEMOIZATION[json.dumps(str(state['State'].__dict__.copy()))] = (best_state)
+        return best_state
