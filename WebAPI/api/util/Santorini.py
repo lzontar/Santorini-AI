@@ -584,7 +584,8 @@ class Santorini():
         I suggest a good practice of changing the function call inside of here, instead of inside
         the Santorini initialization function.
         """
-        self.value = self.pawn_height_proximity_value()
+        #self.value = self.pawn_height_proximity_value()
+        self.value = self.dummy_heuristic()
 
     def pawn_height_proximity_value(self):
         """
@@ -618,6 +619,31 @@ class Santorini():
                     else: temp_value += height*1.5 #the value should be high, since the opposing player could win next turn. However, this does not account for the possibility of simply building a roof there.
                 elif height >0: temp_value += height
                 else: continue # consider adding some reward here as well.
+            if pawn != self.player[0]:
+                temp_value *= -1
+            pawn_height_value += temp_value
+        return pawn_height_value
+
+    def dummy_heuristic(self):
+        """
+        Heuristic function that evaluates game states.
+        Favors situations where agent is standing as high as possible, surrounded
+        by buildings that are as high as possible, while the oponnent is as low as possible.
+
+        """
+        winning_state = BIG_NUMBER * __MAXMINDICT__[self.player]
+        if self.isDone():
+            return winning_state
+        pawn_height_value = 0
+
+        pawns = self.get_pawns()
+        pawns = [space for list in list(pawns.values()) for space in list]
+        for space in pawns:
+            temp_value = 0
+            let, num = space[0], space[1]
+            height = self.board[let][num][0]
+            temp_value += height
+            pawn = self.board[let][num][1]
             if pawn != self.player[0]:
                 temp_value *= -1
             pawn_height_value += temp_value
