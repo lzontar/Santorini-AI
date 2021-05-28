@@ -23,12 +23,13 @@ def get_ix():
     global ix
     return ix
 
-def MinMax(state, depth, start_depth, alpha, beta):
+def MinMax(state, depth, alpha, beta):
     #print('Inverse!')
     #if json.dumps(state_to_dict(state['State'])) in MEMOIZATION.keys():
     #    return MEMOIZATION[json.dumps(state_to_dict(state['State']))]
     if not state['State'].inverse: lib=__MAXMINDICT__
     else: lib=__MAXMINDICT__2
+    #lib = __MAXMINDICT__
     player = state['State'].player
     sign = lib[player]
     goal = BIG_NUMBER * sign
@@ -48,7 +49,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
     # print(f'make_children executed in: {round(time1 - time0, 2)}s')
 
     for child in state['State'].children:
-        _, observed_future = MinMax(child, depth - 1, start_depth, alpha, beta)
+        _, observed_future = MinMax(child, depth - 1, alpha, beta)
         if observed_future == None:continue
         observed_value = observed_future['State'].value  # Extract the value, returned from the future state
         if abs(goal - observed_value) < abs(

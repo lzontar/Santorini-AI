@@ -7,7 +7,7 @@ import copy
 from sys import maxsize
 warnings.simplefilter("always")
 #The logic for the minimax algorithm is in a seperate file.
-from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix
+from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix, __MAXMINDICT__2
 from .minmaxer_names import ALL_MINMAXERS
 
 """
@@ -630,7 +630,7 @@ class Santorini():
 
         time0 = time.time()
         emptyMemoization()
-        future_val, best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
+        future_val, best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, alpha=-maxsize, beta=maxsize)
         time1 = time.time()
         print(f'MinMax iter executed in: {round(time1 - time0, 2)}s')
         if best_state is not None:

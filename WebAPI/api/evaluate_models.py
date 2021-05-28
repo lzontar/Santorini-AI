@@ -32,7 +32,7 @@ def run_tests(white='Minmaxer', blue='3214', gpl=10, loops=5, depth=2):
             s = Santorini(True)
             players = s.make_players(mode)
             print(players)
-            while not s.isDone():
+            while not s.isDone() and not s.amDead():
                 turn = s.turn
                 print(turn)
                 if turn%2==0:inverse=True
@@ -72,13 +72,13 @@ def run_tests(white='Minmaxer', blue='3214', gpl=10, loops=5, depth=2):
 
 
 def ux_for_tests(agent, depth):
-    red = '3214' # input('Please input desired agent to play as white: ')
+    red = agent # input('Please input desired agent to play as white: ')
     if red not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         red = 'Random'
     else:
         print(f'Selected {red}.')
-    blue =  agent # input('Please input desired agent to play as blue: ')
+    blue = agent # input('Please input desired agent to play as blue: ')
     if blue not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         blue = 'Random'
@@ -92,7 +92,8 @@ if __name__ == "__main__":
     DEPTH = 2
     tt = TicToc()
     tt.tic()
-    agents = ['SimpleInvoker', 'HelpInvoker', 'Highriser2', 'RooflessCuddler']
+    #agents = ['SimpleInvoker', 'HelpInvoker', 'Highriser2', 'RooflessCuddler']
+    agents = ['HelpInvoker']
     for agent in agents:
         ux_for_tests(agent, DEPTH)
     tt.toc()
