@@ -19,7 +19,6 @@ def get_help(state):
 
     winning_state = BIG_NUMBER * __MAXMINDICT__[state.player]
     if state.isDone():
-        print('This happens')
         return winning_state
     val = 0
     pawns = state.find_pawns().values()
@@ -51,3 +50,4 @@ class HelpInvoker(Santorini):
     def evaluate_current_board_state(self):
         self.algAI = 'HelpInvoker'
         self.value = get_help(self)
+

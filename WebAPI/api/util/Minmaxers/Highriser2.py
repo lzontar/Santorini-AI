@@ -51,3 +51,4 @@ class Highriser2(Santorini):
     def evaluate_current_board_state(self):
         self.algAI = 'Highriser2'
         self.value = hr2heur(self)
+

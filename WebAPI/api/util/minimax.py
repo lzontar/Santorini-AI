@@ -3,6 +3,7 @@ from sys import maxsize  # not using currently, should replace BIG_NUMBER
 import json
 
 __MAXMINDICT__ = {'Red': 1, 'Blue': -1}
+__MAXMINDICT__2 = {'Red': -1, 'Blue': 1}
 BIG_NUMBER = 20000
 
 MEMOIZATION = dict()
@@ -23,10 +24,13 @@ def get_ix():
     return ix
 
 def MinMax(state, depth, start_depth, alpha, beta):
+    #print('Inverse!')
     #if json.dumps(state_to_dict(state['State'])) in MEMOIZATION.keys():
     #    return MEMOIZATION[json.dumps(state_to_dict(state['State']))]
+    if not state['State'].inverse: lib=__MAXMINDICT__
+    else: lib=__MAXMINDICT__2
     player = state['State'].player
-    sign = __MAXMINDICT__[player]
+    sign = lib[player]
     goal = BIG_NUMBER * sign
     if (depth == 0) or (abs(state['State'].value) >= BIG_NUMBER) or state['State'].isDone():  # if victory is achieved in this state or we've reached our depth limit, do...
         return state['State'].value*sign, state
@@ -45,6 +49,7 @@ def MinMax(state, depth, start_depth, alpha, beta):
 
     for child in state['State'].children:
         _, observed_future = MinMax(child, depth - 1, start_depth, alpha, beta)
+        if observed_future == None:continue
         observed_value = observed_future['State'].value  # Extract the value, returned from the future state
         if abs(goal - observed_value) < abs(
                 goal - best_val):  # if this state gets us closer to our desired goal (victory), do...

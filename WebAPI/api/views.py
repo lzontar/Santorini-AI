@@ -63,14 +63,14 @@ def build(request):
 
 def get_game(alg):
     if alg == 'LowIsGood':
-        return LowIsGood()
+        return LowIsGood(False)
     elif alg == 'Highriser':
-        return Highriser()
-    elif alg == 'Highriser2':
-        return Highriser2()
+        return Highriser(False)
     elif alg == 'HelpInvoker':
-        return HelpInvoker()
-    return Santorini()
+        return HelpInvoker(False)
+    elif alg == 'RooflessCuddler':
+        return RooflessCuddler(False)
+    return Santorini(False)
 
 def init(request):
     algorithm = request.GET['alg']

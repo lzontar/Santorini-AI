@@ -34,3 +34,4 @@ class LowIsGood(Santorini):
         self.algAI = 'LowIsGood'
         self.value = dummy_heuristic(self)
 
+

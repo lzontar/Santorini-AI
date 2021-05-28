@@ -6,7 +6,6 @@ import random
 import copy
 from sys import maxsize
 warnings.simplefilter("always")
-
 #The logic for the minimax algorithm is in a seperate file.
 from .minimax import MinMax, __MAXMINDICT__, BIG_NUMBER, emptyMemoization, get_ix
 from .minmaxer_names import ALL_MINMAXERS
@@ -32,7 +31,7 @@ def getDist(A, B):
 
 
 class Santorini():
-    def __init__(self, new=True, board=None, turn=0, move=None, build=None):
+    def __init__(self, inverse, depth=2, new=True, board=None, turn=0, move=None, build=None):
         if new:
             ##Ensures that the board resets only if initializing new class
             ##(More santorini objects are initialized in the tree search for minmax)
@@ -42,6 +41,9 @@ class Santorini():
         else:
             self.board = board
             self.pawns = self.find_pawns()
+        self.inverse=inverse
+        #print(self.inverse)
+        self.depth=depth
         self.cols = ['Red', 'Blue']
         self.turn = turn
         self.algAI = 'Random'
@@ -57,14 +59,20 @@ class Santorini():
         self.evaluate_current_board_state() ## Function assigns heuristic value to current board state.
                                             ## See this function to see which heuristic is currently in use.
 
-    def BoardState(self, new=True, board=None, turn=0, move=None, build=None):
-        return type(self)(new=new, board=board, turn=turn, move=move, build=build)
+    def BoardState(self, inverse, depth=2, new=True, board=None, turn=0, move=None, build=None):
+        return type(self)(inverse, depth=depth, new=new, board=board, turn=turn, move=move, build=build)
 
     #======================GAMEPLAY &  HELPERS=================================#
     # Only functions that are related to core Santorini gameplay,
     # Unrelated to any heuristics, tree search etc.
 
     ### Main game logic.
+    def make_players(self, mode):
+        players = {}
+        for i in range(len(['R', 'B'])):
+            players.update({['R', 'B'][i]: mode[i]})
+        return players
+
     def play(self, mode=None, cmd=True):
 
         """
@@ -112,6 +120,7 @@ class Santorini():
 
     def play_turn(self, players):
         self.setPlayer()
+        if players[self.player[0]] in ALL_MINMAXERS: assert type(self).__name__ == players[self.player[0]]
         print(f"{self.player}'s turn!")
         if players[self.player[0]] == 'Random':
             outcome = self.doAITurn(self.makeRandomMove, self.makeRandomBuild)
@@ -122,7 +131,7 @@ class Santorini():
             if outcome != 1:
                 return self.process_outcome(outcome)
         elif players[self.player[0]] in ALL_MINMAXERS+['RandomMinmaxer']:
-            outcome = self.minmaxer_turn()
+            outcome = self.minmaxer_turn(depth=self.depth)
             if outcome != 1:
                 return self.process_outcome(outcome)
         elif players[self.player[0]] == 'HighestMoveBuild':
@@ -201,31 +210,31 @@ class Santorini():
 
 
 
-    def wipe(self):
+    def wipe(self, r=True):
         ### Wipes board and sets pieces in default starting positions. Note that
         ### Different starting positions can be achieved by replacing the indices in wipe().
         ### Currently, random starting positions are implemented.
         self.board = setupBlankBoard()
-        pawns = {
-            'R1': ('B', 2),
-            'R2': ('D', 4),
-            'B1': ('B', 4),
-            'B2': ('D', 2)
-        }
-
-        # for i in range(2):
-        #     for pawn in ['B', 'R']:
-        #         num = random.choice([1, 2, 3, 4, 5])
-        #         let = random.choice(['A', 'B', 'C', 'D', 'E'])
-        #         while self.board[let][num][1]:
-        #             num = random.choice([1, 2, 3, 4, 5])
-        #             let = random.choice(['A', 'B', 'C', 'D', 'E'])
-        #         self.board[let][num] = (0, f'{pawn}{i + 1}')
-        #         pawns[pawn].append((let, num))
-
-        for pawn_name in pawns.keys():
-            pawn = pawns[pawn_name]
-            self.board[pawn[0]][pawn[1]] = (0, pawn_name)
+        if not r:
+            pawns = {
+                'R1': ('B', 2),
+                'R2': ('D', 4),
+                'B1': ('B', 4),
+                'B2': ('D', 2)
+            }
+            for pawn_name in pawns.keys():
+                pawn = pawns[pawn_name]
+                self.board[pawn[0]][pawn[1]] = (0, pawn_name)
+        else:
+            pawns = {}
+            for pawn_name in ['R1', 'R2', 'B1', 'B2']:
+             num = random.choice([1, 2, 3, 4, 5])
+             let = random.choice(['A', 'B', 'C', 'D', 'E'])
+             while self.board[let][num][1]:
+                 num = random.choice([1, 2, 3, 4, 5])
+                 let = random.choice(['A', 'B', 'C', 'D', 'E'])
+             self.board[let][num] = (0, pawn_name)
+             pawns[pawn_name] = (let, num)
 
         self.pawns = pawns
 
@@ -334,7 +343,12 @@ class Santorini():
     # that prevents us from makling illegal turns. Currently only used
     # for preventing errors by human players in the terminal and for
     # searching for valid moves by AI.
-
+    def amDead(self):
+        pawns = self.find_pawns()
+        for p in pawns:
+            if p[0] != self.player[0]: continue
+            if self.getAvailableMoves(pawns[p]): return False
+        return True
 
     def getAltitudeDiff(self, _from, _to):
         """
@@ -619,8 +633,12 @@ class Santorini():
         future_val, best_state = MinMax({'State': self, 'Move' : ('Start', None), 'Build' : None}, depth, start_depth=depth, alpha=-maxsize, beta=maxsize)
         time1 = time.time()
         print(f'MinMax iter executed in: {round(time1 - time0, 2)}s')
-        self.set_state(state=best_state['State'])
-        print(best_state)
+        if best_state is not None:
+            self.set_state(state=best_state['State'])
+        else:
+            print('****** I THINK I\'M LOSING**********')
+            self.doAITurn(self.makeHighestMove, self.makeHighestBuild)
+        #print(best_state)
         """
         move = strategy['Move']
         if not move:
@@ -635,7 +653,11 @@ class Santorini():
         print(f'AI builds on {build}')
         """
 
-
+        if self.amDead():
+            self.drawBoard()
+            print(f'Current state: {self.value}')
+            print(f'Decision made based on future state with value: {future_val}')
+            return 1
         self.drawBoard()
         print(f'Current state: {self.value}')
         print(f'Decision made based on future state with value: {future_val}')
@@ -657,12 +679,10 @@ class Santorini():
         states = []
         if not self.isDone():
             for move in self.getAllCurrentAvailableMoves():
-                s = self.BoardState(new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn), move=move)
-                # s.move(move[0], move[1])
+                s = self.BoardState(depth=self.depth, new=False, board=copy.deepcopy(self.board), turn=copy.deepcopy(self.turn), move=move, inverse=copy.deepcopy(self.inverse))
                 if not s.isDone():
                     for build in s.getAvailableBuilds(move[1]):
-                        ss = self.BoardState(new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn), build=build)
-                        # ss.build(build)
+                        ss = self.BoardState(depth=self.depth, new=False, board=copy.deepcopy(s.board), turn=copy.deepcopy(s.turn), build=build, inverse=copy.deepcopy(self.inverse))
                         ss.nextTurn()
                         ss.setPlayer()
                         assert ss.player != s.player
@@ -670,7 +690,7 @@ class Santorini():
                         states.append({'State' : ss, 'Move' : move, 'Build' : build})
                 else:
                     states.append({'State' : s, 'Move' : move, 'Build' : None})
-                    print('Winning Child Appended')
+                    #print('Winning Child Appended')
                     continue
             return states
         else: return [{'State' : self, 'Move' : ((None, None), (None, None)), 'Build' : None}]

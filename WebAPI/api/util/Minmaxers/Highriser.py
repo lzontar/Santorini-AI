@@ -51,3 +51,4 @@ class Highriser(Santorini):
     def evaluate_current_board_state(self):
         self.algAI = 'Highriser'
         self.value = pawn_height_proximity_value(self)
+
