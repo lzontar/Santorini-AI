@@ -22,39 +22,39 @@ def run_tests(white='Minmaxer', blue='3214', gpl=10, loops=5, depth=2):
     loops = loops
     folder = f'{mode1[0]} vs {mode1[1]} d={depth}'
     #for mode in [mode1, mode2]:
-    #for mode in [mode1, mode2]:
-    mode = mode1
-    need_casting = any([i in ALL_MINMAXERS for i in mode])
-    for j in range(loops):
-        winners = {'Players' : ['Red', 'Blue'], 'Wins' : [0,0]}
-        for i in range(games_per_loop):
-            print(f'****************GAME {i}*************')
-            s = Santorini(True)
-            players = s.make_players(mode)
-            print(players)
-            while not s.isDone() and not s.amDead():
+    for mode in [mode1, mode2]:
+
+        need_casting = any([i in ALL_MINMAXERS for i in mode])
+        for j in range(loops):
+            winners = {'Players' : ['Red', 'Blue'], 'Wins' : [0,0]}
+            for i in range(games_per_loop):
+                print(f'****************GAME {i}*************')
+                s = Santorini(True)
+                players = s.make_players(mode)
+                print(players)
+                while not s.isDone() and not s.amDead():
+                    turn = s.turn
+                    print(turn)
+                    if turn%2==0:inverse=True
+                    else: inverse=False
+                    player = players[s.cols[turn%2][0]]
+                    if need_casting:
+                        print(type(s).__name__)
+                        print(player)
+                        if player not in INSTANCES:
+                            obj = Santorini(inverse)
+                        else: obj = INSTANCES[player]
+                        s = obj.BoardState(inverse, new=False, board=s.board, turn = s.turn)
+                    s.play_turn(players)
+                player = s.player
                 turn = s.turn
-                print(turn)
-                if turn%2==0:inverse=True
-                else: inverse=False
-                player = players[s.cols[turn%2][0]]
-                if need_casting:
-                    print(type(s).__name__)
-                    print(player)
-                    if player not in INSTANCES:
-                        obj = Santorini(inverse)
-                    else: obj = INSTANCES[player]
-                    s = obj.BoardState(inverse, new=False, board=s.board, turn = s.turn)
-                s.play_turn(players)
-            player = s.player
-            turn = s.turn
-            winners['Wins'][winners['Players'].index(player)]+=1
-            turns.append(turn)
-        winners = pd.DataFrame(winners)
-        if j==0:
-            all_winners = winners
-        else:
-            all_winners = all_winners.append(winners)
+                winners['Wins'][winners['Players'].index(player)]+=1
+                turns.append(turn)
+            winners = pd.DataFrame(winners)
+            if j==0:
+                all_winners = winners
+            else:
+                all_winners = all_winners.append(winners)
 
 
         fig, ax = plt.subplots(2,1)
@@ -89,11 +89,4 @@ def ux_for_tests(agent, depth):
     run_tests(red, blue, gpl, loops, depth)
 
 if __name__ == "__main__":
-    DEPTH = 2
-    tt = TicToc()
-    tt.tic()
-    #agents = ['SimpleInvoker', 'HelpInvoker', 'Highriser2', 'RooflessCuddler']
-    agents = ['HelpInvoker']
-    for agent in agents:
-        ux_for_tests(agent, DEPTH)
-    tt.toc()
+    ux_for_tests()

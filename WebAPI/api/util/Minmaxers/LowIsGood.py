@@ -2,7 +2,7 @@ import sys
 import os
 
 
-from ..Santorini import Santorini, BIG_NUMBER, __MAXMINDICT__
+from ..Santorini import Santorini, BIG_NUMBER, __MAXMINDICT__, __MAXMINDICT__2
 
 
 def dummy_heuristic(state):
@@ -10,7 +10,9 @@ def dummy_heuristic(state):
     Dumb heuristic that evaluates standing as low as possible as a good board state
 
     """
-    winning_state = BIG_NUMBER * __MAXMINDICT__[state.player]
+    if not state.inverse : lib = __MAXMINDICT__
+    else: lib = __MAXMINDICT__2
+    winning_state = BIG_NUMBER * lib[state.player]
     if state.isDone():
         return winning_state
     pawn_height_value = 0
