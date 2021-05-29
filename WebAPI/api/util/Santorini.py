@@ -612,7 +612,7 @@ class Santorini():
 
     ## TODO: It's working quite slow, we should consider implementing alpha-beta pruning.
 
-    def minmaxer_turn(self, depth=2):
+    def minmaxer_turn(self, depth=3):
         """
 
         This function is a standin for the doAITurn() function that handles the automatic gameplay of the AI (as said
