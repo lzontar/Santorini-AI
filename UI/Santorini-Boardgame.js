@@ -316,7 +316,7 @@ function init(alg) {
 
     selectedFigure = null;
     if (alg == null)
-        alg = '3214'
+        alg = 'HelpInvoker'
 
     document.getElementById("dropdownMenuButtonAI").innerText = alg
 
