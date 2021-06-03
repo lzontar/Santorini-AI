@@ -3,5 +3,4 @@ To use GUI, run the following commands.
 $ cd WebAPI
 $ python manage.py runserver
 ```
-
-Alternatively, run the play() method in santo.py to use the terminal UI.
+And then open `UI\Santorini-Boardgame.html` to play versus the implemented AI. We suggest trying your skills versus the best performing algorithms: HelpInvoker and SansInvoker3.
