@@ -71,14 +71,14 @@ def run_tests(white='Minmaxer', blue='3214', gpl=10, loops=5, depth=2):
         plt.show()
 
 
-def ux_for_tests(agent, depth):
-    red = agent # input('Please input desired agent to play as white: ')
+def ux_for_tests(agent1, agent2, depth):
+    red = agent1 # input('Please input desired agent to play as white: ')
     if red not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         red = 'Random'
     else:
         print(f'Selected {red}.')
-    blue = agent # input('Please input desired agent to play as blue: ')
+    blue = agent2 # input('Please input desired agent to play as blue: ')
     if blue not in AGENTS:
         print('Desired agent not available. Reverting to random.')
         blue = 'Random'
@@ -89,4 +89,4 @@ def ux_for_tests(agent, depth):
     run_tests(red, blue, gpl, loops, depth)
 
 if __name__ == "__main__":
-    ux_for_tests()
+    ux_for_tests('Highriser', '3214', 2)

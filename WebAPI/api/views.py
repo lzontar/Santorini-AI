@@ -6,6 +6,7 @@ from .util.Santorini import Santorini
 from .util.Minmaxers.LowIsGood import LowIsGood
 from .util.Minmaxers.Highriser import Highriser
 from .util.Minmaxers.Highriser2 import Highriser2
+from .util.Minmaxers.RooflessCuddler import RooflessCuddler
 from .util.Minmaxers.HelpInvoker import HelpInvoker
 from .util.lib import mapperAlpha
 
