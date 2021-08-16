@@ -89,4 +89,4 @@ def ux_for_tests(agent1, agent2, depth):
     run_tests(red, blue, gpl, loops, depth)
 
 if __name__ == "__main__":
-    ux_for_tests('Highriser', '3214', 2)
+    ux_for_tests('HelpInvoker', 'SansInvoker4', 2)

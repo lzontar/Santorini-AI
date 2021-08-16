@@ -120,7 +120,7 @@ class Santorini():
 
     def play_turn(self, players):
         self.setPlayer()
-        if players[self.player[0]] in ALL_MINMAXERS: assert type(self).__name__ == players[self.player[0]]
+        #if players[self.player[0]] in ALL_MINMAXERS: assert type(self).__name__ == players[self.player[0]]
         print(f"{self.player}'s turn!")
         if players[self.player[0]] == 'Random':
             outcome = self.doAITurn(self.makeRandomMove, self.makeRandomBuild)
